@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About, TV Productions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_page-base.css" />
+  <style>
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .about-grid { grid-template-columns: 1fr; gap: 40px; }
+    }
+    .portrait {
+      aspect-ratio: 4 / 5;
+      border: 1px solid var(--border);
+      background:
+        radial-gradient(ellipse 50% 35% at 50% 30%, rgba(255,255,255,0.06) 0%, transparent 70%),
+        linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+    .portrait::after { display: none; }
+    .portrait.has-photo {
+      background:
+        url('uploads/D134700B-9232-4096-981C-50F69FC61514.JPG') 40% 20% / 128% auto no-repeat,
+        #0a0a0a;
+    }
+    .portrait .tag {
+      position: absolute;
+      bottom: 16px; left: 16px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      color: var(--silver);
+      opacity: 0.7;
+      text-transform: uppercase;
+    }
+    .portrait .badge {
+      position: absolute;
+      top: 14px; left: 14px;
+      display: inline-flex;
+      align-items: center; gap: 8px;
+      padding: 5px 10px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(10,10,10,0.7);
+      backdrop-filter: blur(8px);
+      border-radius: 2px;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      color: var(--silver);
+      text-transform: uppercase;
+    }
+    .portrait .badge .rec {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--signal); box-shadow: 0 0 6px var(--signal);
+    }
+
+    .bio p + p { margin-top: 18px; }
+    .bio p { text-wrap: pretty; }
+    .bio h2 {
+      font-family: 'BebasNeue', sans-serif;
+      letter-spacing: 0.04em;
+      font-size: clamp(40px, 5vw, 64px);
+      line-height: 0.95;
+      margin-bottom: 24px;
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 32px;
+    }
+    @media (max-width: 540px) {
+      .stat-row { grid-template-columns: 1fr; }
+    }
+    .stat {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 20px;
+      background: var(--bg-elevated);
+    }
+    .stat .num {
+      font-family: 'BebasNeue', sans-serif;
+      letter-spacing: 0.04em;
+      font-size: 52px;
+      line-height: 1;
+      color: var(--white);
+    }
+    .stat .lab {
+      margin-top: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+
+    .capabilities {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 16px;
+    }
+    @media (max-width: 540px) { .capabilities { grid-template-columns: 1fr; } }
+    .cap {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 20px;
+      background: var(--bg-elevated);
+    }
+    .cap .k {
+      font-family: 'BebasNeue', sans-serif;
+      letter-spacing: 0.05em;
+      font-size: 22px;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+    .cap .d { font-size: 14px; line-height: 1.55; color: var(--silver); }
+
+    /* ── interactive BTS photo grid: small CRT TVs ── */
+    .bts-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+    @media (max-width: 900px) { .bts-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 640px) { .bts-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 420px) { .bts-grid { grid-template-columns: 1fr; } }
+
+    .bts-tv-bezel {
+      position: relative;
+      padding: 9px;
+      border-radius: 11px;
+      background: radial-gradient(ellipse 130% 100% at 50% 0%, #1c1c1a 0%, #0e0e0d 62%);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06),
+        inset 0 2px 0 rgba(255,255,255,0.05),
+        inset 0 0 0 1px rgba(0,0,0,0.7),
+        0 18px 36px rgba(0,0,0,0.5);
+    }
+    .bts-tv-screen {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      border-radius: 5px;
+      overflow: hidden;
+      background: #050505;
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.95), inset 0 0 0 1px rgba(255,255,255,0.05);
+    }
+    .bts-slot {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      background:
+        radial-gradient(ellipse 60% 45% at 50% 30%, rgba(255,255,255,0.05) 0%, transparent 70%),
+        linear-gradient(180deg, #161616 0%, #0a0a0a 100%);
+    }
+    .bts-tv-glass {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+      background:
+        linear-gradient(155deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 18%,
+          transparent 38%, transparent 62%, rgba(255,255,255,0.02) 92%);
+    }
+    .bts-tv-scan { display: none; }
+    .bts-tv-chin {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 7px;
+      padding: 7px 11px;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #161615 0%, #0c0c0b 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 6px 14px rgba(0,0,0,0.35);
+    }
+    .bts-tv-chin .b {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #3a3a37, #141413);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.6);
+    }
+    .bts-tv-chin .b.pwr {
+      background: radial-gradient(circle at 35% 30%, #ff6657, var(--signal));
+      box-shadow: 0 0 7px rgba(255,45,32,0.5);
+    }
+    .bts-tv-chin .led {
+      margin-left: auto;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #3ddc6e; box-shadow: 0 0 7px rgba(61,220,110,0.7);
+    }
+    .bts-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-color: #0a0a0a;
+    }
+    .page-hero .lede { max-width: 760px; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="home-link" href="Home.html">
+    <span class="glyph">TV</span>
+    <span>Back to home</span>
+  </a>
+  <nav class="nav">
+    <a href="Portfolio.html">Portfolio</a>
+    <a href="Services.html">Services</a>
+    <a href="About.html" class="active">About</a>
+    <a href="Contact.html">Contact</a>
+  </nav>
+  <div class="channel-pill"><span class="rec"></span>CH 03</div>
+</header>
+
+<section class="page-hero">
+  <div class="crumbs">
+    <span>TV</span><span class="sep">/</span><span class="here">About</span>
+  </div>
+  <h1>Who we<br/>are.</h1>
+  <p class="lede">TV Productions is a social-first video content agency founded by <span style="white-space:nowrap;">Tanner Vonnahme</span>.<br/>Based in Los Angeles, California, we are here to serve your brand by making "must see TV".</p>
+</section>
+
+<main class="content">
+  <div class="section" style="border-top: none; padding-top: 16px;">
+    <div class="about-grid">
+      <div class="portrait has-photo">
+        <span class="badge"><span class="rec"></span>Founder · Tanner Vonnahme</span>
+      </div>
+      <div class="bio">
+        <h2>Cinematic instincts. Social-native speed.</h2>
+        <p>With the initials TV and a love for television and film, TV Productions was born. Forever inspired by great storytelling and the emotions felt through incredible shows and films, it's our goal to chase authenticity, not trends, while creating content that elevates your brand to new heights. It takes a village to curate the best content possible, and we're just as passionate about curating the best crew of people to make your visions come to life. We bust our asses, but never lose sight of the fact that this isn't work. It's fun. If we're not having fun, we're doing something&nbsp;wrong.</p>
+        <div class="stat-row">
+          <div class="stat"><div class="num">+500</div><div class="lab">Assets made</div></div>
+          <div class="stat"><div class="num">+50M</div><div class="lab">Total views</div></div>
+          <div class="stat"><div class="num">17</div><div class="lab">Major brands</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="eyebrow">Behind the scenes</div>
+    <h2>On set.</h2>
+    <div class="bts-grid">
+      <div class="bts-tv">
+        <div class="bts-tv-bezel">
+          <div class="bts-tv-screen">
+            <div class="bts-photo" style="background-image:url('uploads/Screenshot 2025-04-03 at 11.49.16 AM 3.JPEG'); background-position:45% 22%;"></div>
+            <div class="bts-tv-glass"></div>
+            <div class="bts-tv-scan"></div>
+          </div>
+        </div>
+        <div class="bts-tv-chin"><span class="b pwr"></span><span class="b"></span><span class="b"></span><span class="led"></span></div>
+      </div>
+      <div class="bts-tv">
+        <div class="bts-tv-bezel">
+          <div class="bts-tv-screen">
+            <div class="bts-photo" style="background-image:url('uploads/IMG_6309 2.JPG'); background-position:50% 42%;"></div>
+            <div class="bts-tv-glass"></div>
+            <div class="bts-tv-scan"></div>
+          </div>
+        </div>
+        <div class="bts-tv-chin"><span class="b pwr"></span><span class="b"></span><span class="b"></span><span class="led"></span></div>
+      </div>
+      <div class="bts-tv">
+        <div class="bts-tv-bezel">
+          <div class="bts-tv-screen">
+            <div class="bts-photo" style="background-image:url('uploads/IMG_8084.jpg'); background-position:50% 16%;"></div>
+            <div class="bts-tv-glass"></div>
+            <div class="bts-tv-scan"></div>
+          </div>
+        </div>
+        <div class="bts-tv-chin"><span class="b pwr"></span><span class="b"></span><span class="b"></span><span class="led"></span></div>
+      </div>
+      <div class="bts-tv">
+        <div class="bts-tv-bezel">
+          <div class="bts-tv-screen">
+            <div class="bts-photo" style="background-image:url('uploads/IMG_7295.JPG'); background-position:58% 48%;"></div>
+            <div class="bts-tv-glass"></div>
+            <div class="bts-tv-scan"></div>
+          </div>
+        </div>
+        <div class="bts-tv-chin"><span class="b pwr"></span><span class="b"></span><span class="b"></span><span class="led"></span></div>
+      </div>
+      <div class="bts-tv">
+        <div class="bts-tv-bezel">
+          <div class="bts-tv-screen">
+            <div class="bts-photo" style="background-image:url('uploads/F42F6B76-9AF4-4191-B23C-931B8700D6D0.JPG'); background-position:50% 20%;"></div>
+            <div class="bts-tv-glass"></div>
+            <div class="bts-tv-scan"></div>
+          </div>
+        </div>
+        <div class="bts-tv-chin"><span class="b pwr"></span><span class="b"></span><span class="b"></span><span class="led"></span></div>
+      </div>
+      <div class="bts-tv">
+        <div class="bts-tv-bezel">
+          <div class="bts-tv-screen">
+            <div class="bts-photo" style="background-image:url('uploads/View recent photos 4.png'); background-position:70% 38%;"></div>
+            <div class="bts-tv-glass"></div>
+            <div class="bts-tv-scan"></div>
+          </div>
+        </div>
+        <div class="bts-tv-chin"><span class="b pwr"></span><span class="b"></span><span class="b"></span><span class="led"></span></div>
+      </div>
+      <div class="bts-tv">
+        <div class="bts-tv-bezel">
+          <div class="bts-tv-screen">
+            <div class="bts-photo" style="background-image:url('uploads/IMG_7258.JPG'); background-position:60% 50%;"></div>
+            <div class="bts-tv-glass"></div>
+            <div class="bts-tv-scan"></div>
+          </div>
+        </div>
+        <div class="bts-tv-chin"><span class="b pwr"></span><span class="b"></span><span class="b"></span><span class="led"></span></div>
+      </div>
+      <div class="bts-tv">
+        <div class="bts-tv-bezel">
+          <div class="bts-tv-screen">
+            <div class="bts-photo" style="background-image:url('uploads/IMG_8116.jpg'); background-position:42% 42%;"></div>
+            <div class="bts-tv-glass"></div>
+            <div class="bts-tv-scan"></div>
+          </div>
+        </div>
+        <div class="bts-tv-chin"><span class="b pwr"></span><span class="b"></span><span class="b"></span><span class="led"></span></div>
+      </div>
+      <div class="bts-tv">
+        <div class="bts-tv-bezel">
+          <div class="bts-tv-screen">
+            <div class="bts-photo" style="background-image:url('uploads/IMG_8375 2.jpg'); background-position:50% 45%;"></div>
+            <div class="bts-tv-glass"></div>
+            <div class="bts-tv-scan"></div>
+          </div>
+        </div>
+        <div class="bts-tv-chin"><span class="b pwr"></span><span class="b"></span><span class="b"></span><span class="led"></span></div>
+      </div>
+      <div class="bts-tv">
+        <div class="bts-tv-bezel">
+          <div class="bts-tv-screen">
+            <div class="bts-photo" style="background-image:url('uploads/IMG_8473.jpg'); background-position:42% 42%;"></div>
+            <div class="bts-tv-glass"></div>
+            <div class="bts-tv-scan"></div>
+          </div>
+        </div>
+        <div class="bts-tv-chin"><span class="b pwr"></span><span class="b"></span><span class="b"></span><span class="led"></span></div>
+      </div>
+      <div class="bts-tv">
+        <div class="bts-tv-bezel">
+          <div class="bts-tv-screen">
+            <div class="bts-photo" style="background-image:url('uploads/IMG_8807.jpg'); background-position:50% 14%;"></div>
+            <div class="bts-tv-glass"></div>
+            <div class="bts-tv-scan"></div>
+          </div>
+        </div>
+        <div class="bts-tv-chin"><span class="b pwr"></span><span class="b"></span><span class="b"></span><span class="led"></span></div>
+      </div>
+      <div class="bts-tv">
+        <div class="bts-tv-bezel">
+          <div class="bts-tv-screen">
+            <div class="bts-photo" style="background-image:url('uploads/IMG_8924.jpg'); background-position:48% 42%;"></div>
+            <div class="bts-tv-glass"></div>
+            <div class="bts-tv-scan"></div>
+          </div>
+        </div>
+        <div class="bts-tv-chin"><span class="b pwr"></span><span class="b"></span><span class="b"></span><span class="led"></span></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="mark">TV</div>
+  <div>© TV Productions · Tanner Vonnahme</div>
+</footer>
+
+</body>
+</html>

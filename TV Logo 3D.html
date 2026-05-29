@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TV Productions, 3D Logo</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0b0f; }
+    #root { width: 100%; height: 100%; }
+    #mount {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at 50% 45%, #1a1d24 0%, #0a0b0f 100%);
+    }
+    #mount canvas { display: block; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script type="text/babel">
+const { useRef, useEffect } = React;
+
+/* ── Rounded rect path helper ───────────────────────────── */
+function rrPath(ctx, x, y, w, h, r) {
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y,     x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x,     y + h, x,     y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x,     y,     x + r, y);
+}
+
+/* ── Main component ─────────────────────────────────────── */
+function TVLogo3D() {
+  const mountRef = useRef(null);
+  const rafRef   = useRef(null);
+
+  useEffect(() => {
+    const mount = mountRef.current;
+    let W = mount.clientWidth;
+    let H = mount.clientHeight;
+
+    /* ── Scene ───────────────────────────────────────────── */
+    const scene = new THREE.Scene();
+
+    /* ── Camera ──────────────────────────────────────────── */
+    const camera = new THREE.PerspectiveCamera(35, W / H, 0.1, 100);
+    camera.position.set(0, 0.5, 10.5);
+    camera.lookAt(0, 0, 0);
+
+    /* ── Renderer ────────────────────────────────────────── */
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(W, H);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.physicallyCorrectLights = true;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setClearColor(0x000000, 0);
+    mount.appendChild(renderer.domElement);
+
+    /* ── Material (white ceramic / glossy) ───────────────── */
+    const mat = new THREE.MeshPhysicalMaterial({
+      color:              0xffffff,
+      roughness:          0.42,
+      metalness:          0.05,
+      clearcoat:          0.4,
+      clearcoatRoughness: 0.3,
+    });
+
+    /* ── Extrude settings ────────────────────────────────── */
+    const EXT = {
+      depth:          0.55,
+      bevelEnabled:   true,
+      bevelThickness: 0.06,
+      bevelSize:      0.04,
+      bevelSegments:  3,
+    };
+
+    /* ── Collect disposables ─────────────────────────────── */
+    const geos = [];
+
+    function extrudeMesh(shape) {
+      const geo = new THREE.ExtrudeGeometry(shape, EXT);
+      geos.push(geo);
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.z = -EXT.depth / 2;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      return mesh;
+    }
+
+    /* ── Logo group ──────────────────────────────────────── */
+    const group = new THREE.Group();
+
+    /* ── 1. TV FRAME (hollow rounded rect) ───────────────── */
+    const TW = 4, TH = 3, STROKE = 0.30, R_OUT = 0.38, R_IN = 0.20;
+    const frameShape = new THREE.Shape();
+    rrPath(frameShape, -TW / 2, -TH / 2, TW, TH, R_OUT);
+
+    const hole = new THREE.Path();
+    rrPath(hole,
+      -(TW / 2 - STROKE), -(TH / 2 - STROKE),
+       TW - STROKE * 2,    TH - STROKE * 2,
+       R_IN
+    );
+    frameShape.holes.push(hole);
+    group.add(extrudeMesh(frameShape));
+
+    /* ── 2. ANTENNAE ─────────────────────────────────────── */
+    //
+    // Left:  base ≈ (-0.18, 1.5), tip ≈ (-1.05, 2.85)
+    // Right: mirror
+    //
+    const ANT_BASE_X = 0.18, ANT_BASE_Y = TH / 2;
+    const ANT_TIP_X  = 1.05, ANT_TIP_Y  = 2.85;
+    const ANT_DX = ANT_TIP_X - ANT_BASE_X;
+    const ANT_DY = ANT_TIP_Y - ANT_BASE_Y;
+    const ANT_LEN = Math.sqrt(ANT_DX * ANT_DX + ANT_DY * ANT_DY);
+    const ANT_ANGLE = Math.atan2(ANT_DX, ANT_DY);   // rotation around Z
+    const ANT_MID_X = (ANT_BASE_X + ANT_TIP_X) / 2;
+    const ANT_MID_Y = (ANT_BASE_Y + ANT_TIP_Y) / 2;
+    const ANT_R = 0.058;
+
+    function makeAntenna(signX) {
+      const cylGeo = new THREE.CylinderGeometry(ANT_R, ANT_R, ANT_LEN, 14);
+      const capGeo = new THREE.SphereGeometry(ANT_R, 10, 6);
+      geos.push(cylGeo, capGeo);
+
+      const cyl  = new THREE.Mesh(cylGeo, mat);
+      const capT = new THREE.Mesh(capGeo, mat);
+      const capB = new THREE.Mesh(capGeo, mat);
+      capT.position.y =  ANT_LEN / 2;
+      capB.position.y = -ANT_LEN / 2;
+      [cyl, capT, capB].forEach(m => { m.castShadow = true; m.receiveShadow = true; });
+
+      const ant = new THREE.Group();
+      ant.add(cyl, capT, capB);
+      ant.position.set(signX * ANT_MID_X, ANT_MID_Y, 0);
+      ant.rotation.z = -signX * ANT_ANGLE;
+      return ant;
+    }
+
+    group.add(makeAntenna(-1));  // left
+    group.add(makeAntenna( 1));  // right
+
+    /* ── 3. LETTER "T" ───────────────────────────────────── */
+    //
+    // Designed in a ~0.78 × 0.84 bounding box, origin at centroid.
+    //
+    const tShape = new THREE.Shape();
+    const TLW = 0.73;  // bar half-width
+    const TBH = 0.155; // bar height
+    const TSW = 0.088; // stem half-width
+    const TAH = 0.42;  // total half-height
+    tShape.moveTo(-TLW,   TAH);
+    tShape.lineTo( TLW,   TAH);
+    tShape.lineTo( TLW,   TAH - TBH);
+    tShape.lineTo( TSW,   TAH - TBH);
+    tShape.lineTo( TSW,  -TAH);
+    tShape.lineTo(-TSW,  -TAH);
+    tShape.lineTo(-TSW,   TAH - TBH);
+    tShape.lineTo(-TLW,   TAH - TBH);
+    tShape.closePath();
+    const tMesh = extrudeMesh(tShape);
+    tMesh.position.x = -0.58;
+    group.add(tMesh);
+
+    /* ── 4. LETTER "V" ───────────────────────────────────── */
+    //
+    // Open-top chevron with uniform stroke width.
+    //
+    const vShape = new THREE.Shape();
+    const VOW = 0.73;   // outer half-width at top
+    const VIW = 0.50;   // inner half-width at top
+    const VTY = 0.42;   // top Y
+    const VOB = -0.45;  // outer bottom Y
+    const VIB = -0.29;  // inner bottom Y
+    vShape.moveTo(-VOW,  VTY);   // outer top-left
+    vShape.lineTo(-VIW,  VTY);   // inner top-left
+    vShape.lineTo( 0,    VIB);   // inner bottom point
+    vShape.lineTo( VIW,  VTY);   // inner top-right
+    vShape.lineTo( VOW,  VTY);   // outer top-right
+    vShape.lineTo( 0,    VOB);   // outer bottom point
+    vShape.closePath();
+    const vMesh = extrudeMesh(vShape);
+    vMesh.position.x = 0.58;
+    group.add(vMesh);
+
+    /* ── Center group vertically ─────────────────────────── */
+    // Logo spans from y = ANT_TIP_Y (top) to y = -TH/2 (bottom)
+    const logoTop = ANT_TIP_Y, logoBot = -TH / 2;
+    group.position.y = -(logoTop + logoBot) / 2;
+
+    scene.add(group);
+
+    /* ── Lighting ────────────────────────────────────────── */
+    // Low ambient → shadows have somewhere to fall
+    scene.add(new THREE.AmbientLight(0xffffff, 0.22));
+
+    // Hemisphere bias: warm from above, cool from below
+    const hemi = new THREE.HemisphereLight(0xfffaf5, 0x3a4458, 0.4);
+    scene.add(hemi);
+
+    // Key: near-white directional, casts shadows, this carves the letters out
+    const key = new THREE.DirectionalLight(0xfffaf0, 3.0);
+    key.position.set(4, 6, 5);
+    key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    key.shadow.camera.near = 0.5;
+    key.shadow.camera.far = 30;
+    key.shadow.camera.left = -5;
+    key.shadow.camera.right = 5;
+    key.shadow.camera.top = 5;
+    key.shadow.camera.bottom = -5;
+    key.shadow.bias = -0.0005;
+    key.shadow.normalBias = 0.02;
+    key.shadow.radius = 4;
+    scene.add(key);
+
+    // Fill: cool soft, no shadows, lifts the dark side
+    const fill = new THREE.DirectionalLight(0xb8d4ff, 0.7);
+    fill.position.set(-5, -2, 4);
+    scene.add(fill);
+
+    // Rim: cold backlight, halos silhouette as it spins
+    const rim = new THREE.DirectionalLight(0xffffff, 1.8);
+    rim.position.set(-2, 3, -6);
+    scene.add(rim);
+
+    // Accent: subtle red kick from below-front for brand color injection
+    const accent = new THREE.PointLight(0xff2d20, 10, 8, 2);
+    accent.position.set(0, -2.5, 3);
+    scene.add(accent);
+
+    /* ── Animation ───────────────────────────────────────── */
+    const clock = new THREE.Clock();
+
+    const animate = () => {
+      rafRef.current = requestAnimationFrame(animate);
+      const delta   = clock.getDelta();
+      const elapsed = clock.getElapsedTime();
+      group.rotation.y += delta * (Math.PI * 2 / 10);
+      group.rotation.x  = Math.sin(elapsed * Math.PI * 2 / 6) * (4 * Math.PI / 180);
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    /* ── Resize ──────────────────────────────────────────── */
+    const onResize = () => {
+      W = mount.clientWidth;
+      H = mount.clientHeight;
+      camera.aspect = W / H;
+      camera.updateProjectionMatrix();
+      renderer.setSize(W, H);
+    };
+    window.addEventListener('resize', onResize);
+
+    /* ── Cleanup ─────────────────────────────────────────── */
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      window.removeEventListener('resize', onResize);
+      geos.forEach(g => g.dispose());
+      mat.dispose();
+      renderer.dispose();
+      if (mount.contains(renderer.domElement)) {
+        mount.removeChild(renderer.domElement);
+      }
+    };
+  }, []);
+
+  return (
+    <div
+      id="mount"
+      ref={mountRef}
+      style={{ width: '100%', height: '100%' }}
+    />
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<TVLogo3D />);
+</script>
+<template id="__bundler_thumbnail" data-bg-color="#0a0b0f">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <!-- antennae -->
+    <line x1="475" y1="350" x2="370" y2="200" stroke="#ffffff" stroke-width="22" stroke-linecap="round"/>
+    <line x1="725" y1="350" x2="830" y2="200" stroke="#ffffff" stroke-width="22" stroke-linecap="round"/>
+    <!-- TV body -->
+    <rect x="380" y="320" width="440" height="320" rx="36" fill="none" stroke="#ffffff" stroke-width="38"/>
+    <!-- T -->
+    <g fill="#ffffff">
+      <rect x="445" y="425" width="155" height="34"/>
+      <rect x="503" y="425" width="36" height="170"/>
+    </g>
+    <!-- V -->
+    <polygon points="603,425 640,425 698,580 756,425 793,425 715,605 681,605" fill="#ffffff"/>
+  </svg>
+</template>
+</body>
+</html>

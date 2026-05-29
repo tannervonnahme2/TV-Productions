@@ -1,0 +1,13 @@
+# Claude Design dev artifacts
+tweaks-panel.jsx
+TV Productions-print.html
+
+# Duplicate services video (keep the non-hash version)
+uploads/SERVICES Page Edit Website-ef3fbd98.mp4
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Node
+node_modules/

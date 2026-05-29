@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TV Productions, Social-First Video Agency</title>
+  <meta name="description" content="TV Productions is a social-first video agency founded by Tanner Vonnahme. We produce short-form video, brand content, and artist reels for Instagram, TikTok, and YouTube." />
+  <meta name="keywords" content="video agency, social media video, short-form content, TikTok video production, Instagram Reels, brand content, artist content, Tanner Vonnahme" />
+  <meta name="author" content="Tanner Vonnahme, TV Productions" />
+  <meta property="og:title" content="TV Productions, Social-First Video Agency" />
+  <meta property="og:description" content="We shoot, edit, and deliver social-first video for brands and artists ready to own their feed." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/TV_Logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="TV Productions" />
+  <meta name="twitter:description" content="Social-first video production. On strategy, on brand, on time." />
+  <link rel="canonical" href="https://tvproductions.co" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "TV Productions",
+    "description": "Social-first video production agency for brands and artists.",
+    "founder": { "@type": "Person", "name": "Tanner Vonnahme" },
+    "serviceType": ["Video Production", "Social Media Content", "Brand Identity", "White-Label Production"],
+    "url": "https://tvproductions.co",
+    "sameAs": ["https://instagram.com/_tvproductions", "https://tiktok.com/@_tvproductions"]
+  }
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    @font-face {
+      font-family: 'BebasNeue';
+      src: url('fonts/BebasNeue-Regular.ttf') format('truetype');
+      font-weight: 400;
+      font-display: swap;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; background: #0A0A0A; }
+    body {
+      background: transparent;
+      color: #F0F0EC;
+      font-family: 'Space Grotesk', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    button { cursor: pointer; font-family: inherit; }
+    a { text-decoration: none; color: inherit; }
+    ::selection { background: #FF2D20; color: #fff; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #0A0A0A; }
+    ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 2px; }
+    .sr-only { position: absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0; }
+  </style>
+</head>
+<body>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+
+<script type="text/babel">
+
+/* ─── TWEAKS ─────────────────────────────────────────────── */
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accentColor": "#FF2D20",
+  "ctaLabel": "Start a project",
+  "showTestimonials": true,
+  "heroHeadline": "CONTENT THAT MOVES"
+}/*EDITMODE-END*/;
+
+/* ─── SHARED ─────────────────────────────────────────────── */
+const R = '#FF2D20';
+const W = '#F0F0EC';
+const G = '#6B6B6B';
+const B = 'rgba(10,10,10,0.86)';
+const S = 'rgba(20,20,20,0.86)';
+const C = '#1E1E1E';
+const N = '#2A2A2A';
+const SL = '#AFAFAF';
+
+function scrollTo(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ─── STATIC NOISE CANVAS ────────────────────────────────── */
+function NoiseCanvas({ opacity = 0.045 }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let id;
+    const draw = () => {
+      canvas.width = canvas.offsetWidth || 400;
+      canvas.height = canvas.offsetHeight || 400;
+      const img = ctx.createImageData(canvas.width, canvas.height);
+      for (let i = 0; i < img.data.length; i += 4) {
+        const v = Math.random() * 255;
+        img.data[i] = v; img.data[i+1] = v; img.data[i+2] = v; img.data[i+3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+      id = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => cancelAnimationFrame(id);
+  }, []);
+  return <canvas ref={ref} style={{ position:'absolute', inset:0, width:'100%', height:'100%', opacity, pointerEvents:'none' }} />;
+}
+
+/* ─── ANIMATED LOGO BACKGROUND ───────────────────────────── */
+function LogoStaticBg() {
+  const staticRef = React.useRef(null);
+  const glowRef   = React.useRef(null);
+
+  React.useEffect(() => {
+    const canvas = staticRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    // Screen area as fraction of canvas size (retro TV: screen is center body region)
+    // Logo is a TV set; screen occupies roughly x:22%-78%, y:40%-74%
+    const SX = 0.22, SY = 0.40, SW = 0.56, SH = 0.34;
+
+    let animId;
+    let visible = false;
+    let frameCount = 0;
+    let holdFrames = 0;    // frames to stay in current state
+    let nextHold = 0;
+
+    const scheduleNext = () => {
+      if (visible) {
+        // Stay visible 3–8 frames (~50–130ms)
+        nextHold = 3 + Math.floor(Math.random() * 6);
+      } else {
+        // Stay hidden 60–200 frames (~1–3.3s)
+        nextHold = 60 + Math.floor(Math.random() * 140);
+      }
+    };
+    scheduleNext();
+
+    const SIZE = 256; // internal resolution for noise
+
+    const draw = () => {
+      animId = requestAnimationFrame(draw);
+      frameCount++;
+
+      const W = canvas.width  = canvas.offsetWidth  || 400;
+      const H = canvas.height = canvas.offsetHeight || 400;
+
+      ctx.clearRect(0, 0, W, H);
+
+      if (holdFrames >= nextHold) {
+        visible = !visible;
+        holdFrames = 0;
+        scheduleNext();
+      }
+      holdFrames++;
+
+      if (!visible) return;
+
+      // Screen rectangle in canvas px
+      const sx = W * SX, sy = H * SY, sw = W * SW, sh = H * SH;
+
+      // Draw static noise clipped to screen region
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width  = SIZE;
+      offCanvas.height = SIZE;
+      const off = offCanvas.getContext('2d');
+      const img = off.createImageData(SIZE, SIZE);
+      for (let i = 0; i < img.data.length; i += 4) {
+        const v = Math.random() * 255;
+        img.data[i] = v; img.data[i+1] = v; img.data[i+2] = v;
+        img.data[i+3] = 220;
+      }
+      off.putImageData(img, 0, 0);
+
+      ctx.save();
+      // Rounded clip for screen shape
+      const r = sw * 0.06;
+      ctx.beginPath();
+      ctx.moveTo(sx + r, sy);
+      ctx.lineTo(sx + sw - r, sy);
+      ctx.quadraticCurveTo(sx + sw, sy, sx + sw, sy + r);
+      ctx.lineTo(sx + sw, sy + sh - r);
+      ctx.quadraticCurveTo(sx + sw, sy + sh, sx + sw - r, sy + sh);
+      ctx.lineTo(sx + r, sy + sh);
+      ctx.quadraticCurveTo(sx, sy + sh, sx, sy + sh - r);
+      ctx.lineTo(sx, sy + r);
+      ctx.quadraticCurveTo(sx, sy, sx + r, sy);
+      ctx.closePath();
+      ctx.clip();
+
+      // Static fill
+      ctx.globalAlpha = 0.72;
+      ctx.drawImage(offCanvas, sx, sy, sw, sh);
+
+      // Scanlines overlay
+      ctx.globalAlpha = 0.18;
+      ctx.fillStyle = '#000';
+      for (let y = sy; y < sy + sh; y += 3) {
+        ctx.fillRect(sx, y, sw, 1);
+      }
+
+      // Subtle red tint flash occasionally
+      if (Math.random() < 0.15) {
+        ctx.globalAlpha = 0.12;
+        ctx.fillStyle = '#FF2D20';
+        ctx.fillRect(sx, sy, sw, sh);
+      }
+
+      ctx.restore();
+    };
+
+    draw();
+    return () => cancelAnimationFrame(animId);
+  }, []);
+
+  // Glow pulse behind screen
+  React.useEffect(() => {
+    const el = glowRef.current;
+    if (!el) return;
+    let start = null;
+    let raf;
+    const pulse = (ts) => {
+      if (!start) start = ts;
+      const t = ((ts - start) % 3000) / 3000;
+      const glow = 0.03 + 0.04 * Math.sin(t * Math.PI * 2);
+      el.style.opacity = glow;
+      raf = requestAnimationFrame(pulse);
+    };
+    raf = requestAnimationFrame(pulse);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', pointerEvents:'none', zIndex:1 }}>
+      {/* Large faint logo */}
+      <div style={{ position:'relative', width:'min(520px, 65vw)', height:'min(520px, 65vw)' }}>
+        <img
+          src="assets/TV_Logo_white.png"
+          style={{ position:'absolute', inset:0, width:'100%', height:'100%', filter:'invert(1)', opacity:0.06 }}
+          alt=""
+          aria-hidden="true"
+        />
+        {/* Glow layer */}
+        <div ref={glowRef} style={{
+          position:'absolute', inset:0,
+          backgroundImage:'radial-gradient(ellipse 55% 35% at 50% 57%, #FF2D2022 0%, transparent 70%)',
+          opacity:0.04,
+        }} />
+        {/* Static canvas, same size as logo container */}
+        <canvas ref={staticRef} style={{ position:'absolute', inset:0, width:'100%', height:'100%' }} />
+      </div>
+    </div>
+  );
+}
+
+/* ─── 3D LOGO BACKGROUND ─────────────────────────────────── */
+function TVLogo3D() {
+  const mountRef = React.useRef(null);
+  const rafRef   = React.useRef(null);
+  const scrollRef = React.useRef(0);
+
+  React.useEffect(() => {
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      scrollRef.current = max > 0 ? window.scrollY / max : 0;
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const mount = mountRef.current;
+    if (!mount || typeof THREE === 'undefined') return;
+    let W = mount.clientWidth;
+    let H = mount.clientHeight;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(35, W / H, 0.1, 100);
+    camera.position.set(0, 0.5, 10.5);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(W, H);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.physicallyCorrectLights = true;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setClearColor(0x000000, 0);
+    mount.appendChild(renderer.domElement);
+
+    const mat = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff, roughness: 0.42, metalness: 0.05,
+      clearcoat: 0.4, clearcoatRoughness: 0.3,
+    });
+
+    const EXT = { depth: 0.55, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.04, bevelSegments: 3 };
+    const geos = [];
+
+    function rrPath(ctx, x, y, w, h, r) {
+      ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+    }
+    function extrudeMesh(shape) {
+      const g = new THREE.ExtrudeGeometry(shape, EXT);
+      geos.push(g);
+      const m = new THREE.Mesh(g, mat);
+      m.position.z = -EXT.depth / 2;
+      m.castShadow = true; m.receiveShadow = true;
+      return m;
+    }
+
+    const group = new THREE.Group();
+
+    // Frame
+    const TW = 4, TH = 3, STROKE = 0.30, R_OUT = 0.38, R_IN = 0.20;
+    const frameShape = new THREE.Shape();
+    rrPath(frameShape, -TW / 2, -TH / 2, TW, TH, R_OUT);
+    const hole = new THREE.Path();
+    rrPath(hole, -(TW / 2 - STROKE), -(TH / 2 - STROKE), TW - STROKE * 2, TH - STROKE * 2, R_IN);
+    frameShape.holes.push(hole);
+    group.add(extrudeMesh(frameShape));
+
+    // Antennae
+    const ANT_BASE_X = 0.18, ANT_BASE_Y = TH / 2;
+    const ANT_TIP_X  = 1.05, ANT_TIP_Y  = 2.85;
+    const ANT_DX = ANT_TIP_X - ANT_BASE_X;
+    const ANT_DY = ANT_TIP_Y - ANT_BASE_Y;
+    const ANT_LEN = Math.sqrt(ANT_DX * ANT_DX + ANT_DY * ANT_DY);
+    const ANT_ANGLE = Math.atan2(ANT_DX, ANT_DY);
+    const ANT_MID_X = (ANT_BASE_X + ANT_TIP_X) / 2;
+    const ANT_MID_Y = (ANT_BASE_Y + ANT_TIP_Y) / 2;
+    const ANT_R = 0.058;
+    function makeAntenna(signX) {
+      const cylGeo = new THREE.CylinderGeometry(ANT_R, ANT_R, ANT_LEN, 14);
+      const capGeo = new THREE.SphereGeometry(ANT_R, 10, 6);
+      geos.push(cylGeo, capGeo);
+      const cyl = new THREE.Mesh(cylGeo, mat);
+      const capT = new THREE.Mesh(capGeo, mat);
+      const capB = new THREE.Mesh(capGeo, mat);
+      capT.position.y =  ANT_LEN / 2;
+      capB.position.y = -ANT_LEN / 2;
+      [cyl, capT, capB].forEach(m => { m.castShadow = true; m.receiveShadow = true; });
+      const ant = new THREE.Group();
+      ant.add(cyl, capT, capB);
+      ant.position.set(signX * ANT_MID_X, ANT_MID_Y, 0);
+      ant.rotation.z = -signX * ANT_ANGLE;
+      return ant;
+    }
+    group.add(makeAntenna(-1));
+    group.add(makeAntenna( 1));
+
+    // T
+    const tShape = new THREE.Shape();
+    const TLW = 0.73, TBH = 0.155, TSW = 0.088, TAH = 0.42;
+    tShape.moveTo(-TLW, TAH); tShape.lineTo(TLW, TAH);
+    tShape.lineTo(TLW, TAH - TBH); tShape.lineTo(TSW, TAH - TBH);
+    tShape.lineTo(TSW, -TAH); tShape.lineTo(-TSW, -TAH);
+    tShape.lineTo(-TSW, TAH - TBH); tShape.lineTo(-TLW, TAH - TBH);
+    tShape.closePath();
+    const tMesh = extrudeMesh(tShape);
+    tMesh.position.x = -0.58;
+    group.add(tMesh);
+
+    // V
+    const vShape = new THREE.Shape();
+    const VOW = 0.73, VIW = 0.50, VTY = 0.42, VOB = -0.45, VIB = -0.29;
+    vShape.moveTo(-VOW, VTY); vShape.lineTo(-VIW, VTY);
+    vShape.lineTo(0, VIB); vShape.lineTo(VIW, VTY); vShape.lineTo(VOW, VTY);
+    vShape.lineTo(0, VOB); vShape.closePath();
+    const vMesh = extrudeMesh(vShape);
+    vMesh.position.x = 0.58;
+    group.add(vMesh);
+
+    const baseY = -(ANT_TIP_Y + (-TH / 2)) / 2;
+    group.position.y = baseY;
+    scene.add(group);
+
+    // Lights
+    scene.add(new THREE.AmbientLight(0xffffff, 0.22));
+    const hemi = new THREE.HemisphereLight(0xfffaf5, 0x3a4458, 0.4);
+    scene.add(hemi);
+    const key = new THREE.DirectionalLight(0xfffaf0, 3.0);
+    key.position.set(4, 6, 5);
+    key.castShadow = true;
+    key.shadow.mapSize.set(1024, 1024);
+    key.shadow.camera.near = 0.5; key.shadow.camera.far = 30;
+    key.shadow.camera.left = -5; key.shadow.camera.right = 5;
+    key.shadow.camera.top = 5; key.shadow.camera.bottom = -5;
+    key.shadow.bias = -0.0005; key.shadow.normalBias = 0.02; key.shadow.radius = 4;
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0xb8d4ff, 0.7);
+    fill.position.set(-5, -2, 4); scene.add(fill);
+    const rim = new THREE.DirectionalLight(0xffffff, 1.8);
+    rim.position.set(-2, 3, -6); scene.add(rim);
+    const accent = new THREE.PointLight(0xff2d20, 10, 8, 2);
+    accent.position.set(0, -2.5, 3); scene.add(accent);
+
+    // Animation, CONSTANT spin, position tracks page scroll progress
+    const clock = new THREE.Clock();
+    const TOP_Y = baseY + 1.5;
+    const BOT_Y = baseY - 1.8;
+    const animate = () => {
+      rafRef.current = requestAnimationFrame(animate);
+      const dt = clock.getDelta();
+      const t = clock.getElapsedTime();
+      const progress = scrollRef.current || 0;
+      group.rotation.y += dt * (Math.PI * 2 / 14);
+      group.rotation.x = Math.sin(t * Math.PI / 6) * (3 * Math.PI / 180);
+      group.position.y = TOP_Y + (BOT_Y - TOP_Y) * progress;
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    const onResize = () => {
+      W = mount.clientWidth; H = mount.clientHeight;
+      camera.aspect = W / H; camera.updateProjectionMatrix();
+      renderer.setSize(W, H);
+    };
+    window.addEventListener('resize', onResize);
+
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      window.removeEventListener('resize', onResize);
+      geos.forEach(g => g.dispose());
+      mat.dispose();
+      renderer.dispose();
+      if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
+    };
+  }, []);
+
+  return <div ref={mountRef} style={{
+    position:'fixed', inset:0, width:'100vw', height:'100vh',
+    pointerEvents:'none', zIndex:-1, opacity:0.55,
+  }} />;
+}
+
+/* ─── HEADER ─────────────────────────────────────────────── */
+function Header({ accent, ctaLabel }) {
+  const [scrolled, setScrolled] = React.useState(false);
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', fn);
+    return () => window.removeEventListener('scroll', fn);
+  }, []);
+
+  const nav = [
+    { label: 'Work', id: 'work' },
+    { label: 'Services', id: 'services' },
+    { label: 'Results', id: 'results' },
+    { label: 'About', id: 'about' },
+    { label: 'Contact', id: 'contact' },
+  ];
+
+  return (
+    <header style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
+      background: scrolled ? 'rgba(10,10,10,0.95)' : 'rgba(10,10,10,0.7)',
+      backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+      borderBottom: `1px solid ${scrolled ? N : 'transparent'}`,
+      height: 64, display: 'flex', alignItems: 'center',
+      padding: '0 40px',
+      transition: 'all 400ms cubic-bezier(0.16,1,0.3,1)',
+    }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', width:'100%', maxWidth:1200, margin:'0 auto' }}>
+        {/* Logo */}
+        <button onClick={() => scrollTo('hero')} style={{ display:'flex', alignItems:'center', gap:10, background:'none', border:'none', padding:0 }} aria-label="TV Productions home">
+          <img src="assets/TV_Logo.png" style={{ width:26, height:26, filter:'invert(1)' }} alt="TV Productions logo" />
+          <span style={{ fontFamily:"'BebasNeue',sans-serif", fontSize:20, letterSpacing:'0.08em', color:W }}>TV PRODUCTIONS</span>
+        </button>
+
+        {/* Desktop nav */}
+        <nav style={{ display:'flex', alignItems:'center', gap:32 }} aria-label="Main navigation">
+          {nav.map(({ label, id }) => (
+            <button key={id} onClick={() => scrollTo(id)} style={{
+              background: 'none', border: 'none', padding: '4px 0',
+              fontFamily: "'Space Grotesk',sans-serif", fontSize: 13, fontWeight: 500,
+              color: G, cursor: 'pointer', letterSpacing: '0.02em',
+              transition: 'color 150ms',
+            }}
+            onMouseEnter={e => e.target.style.color = W}
+            onMouseLeave={e => e.target.style.color = G}>
+              {label}
+            </button>
+          ))}
+          <button onClick={() => scrollTo('contact')} style={{
+            background: accent, color: '#fff',
+            fontFamily: "'Space Grotesk',sans-serif", fontSize: 13, fontWeight: 600,
+            padding: '8px 18px', borderRadius: 4, border: 'none', letterSpacing: '0.02em',
+            transition: 'opacity 150ms',
+          }}
+          onMouseEnter={e => e.target.style.opacity = '0.85'}
+          onMouseLeave={e => e.target.style.opacity = '1'}>
+            {ctaLabel}
+          </button>
+        </nav>
+      </div>
+    </header>
+  );
+}
+
+/* ─── HERO ───────────────────────────────────────────────── */
+function Hero({ accent, ctaLabel, headline }) {
+  const [flashed, setFlashed] = React.useState(false);  React.useEffect(() => {
+    setFlashed(true);
+    const t = setTimeout(() => setFlashed(false), 80);
+    return () => clearTimeout(t);
+  }, []);
+
+  const stats = [
+    { n: '50+', l: 'Projects Delivered' },
+    { n: '50M+', l: 'Views Generated' },
+    { n: '15', l: 'Brand Partners' },
+    { n: '100%', l: 'On-Time Rate' },
+  ];
+
+  const lines = headline.split(' ');
+  const half = Math.ceil(lines.length / 2);
+  const line1 = lines.slice(0, half).join(' ');
+  const line2 = lines.slice(half).join(' ');
+
+  return (
+    <section id="hero" style={{
+      minHeight: '100vh', background: 'transparent',
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      position: 'relative', overflow: 'hidden',
+      padding: '80px 40px 80px',
+    }}>
+      <NoiseCanvas />
+
+      {/* Static flash */}
+      <div style={{
+        position:'absolute', inset:0, background:'#fff',
+        opacity: flashed ? 0.9 : 0,
+        pointerEvents:'none', transition:'opacity 40ms', zIndex:10,
+      }} />
+
+      {/* Red scan line */}
+      <div style={{
+        position:'absolute', top:'30%', left:0, right:0, height:1,
+        background: `linear-gradient(to right, transparent, ${accent}55, transparent)`,
+        pointerEvents:'none',
+      }} />
+
+      <div style={{ position:'relative', zIndex:3, maxWidth:900, width:'100%', textAlign:'center' }}>
+        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:11, fontWeight:600, letterSpacing:'0.18em', textTransform:'uppercase', color:G, marginBottom:24 }}>
+          Social-First Video Agency
+        </div>
+
+        <h1 style={{
+          fontFamily: "'BebasNeue',sans-serif",
+          fontSize: 'clamp(72px, 11vw, 112px)',
+          lineHeight: 1, letterSpacing: '0.04em',
+          color: W, margin: '0 0 8px',
+        }}>
+          {line1}<br />
+          <span style={{ color: accent }}>{line2}</span>
+        </h1>
+
+        <p style={{
+          fontFamily: "'Space Grotesk',sans-serif",
+          fontSize: 18, fontWeight: 400, lineHeight: 1.7,
+          color: SL, maxWidth: 560, margin: '28px auto 0',
+        }}>
+          Social-first video production for brands and artists ready to own their feed, on strategy, on brand, on time.
+        </p>
+
+        <div style={{ display:'flex', gap:12, justifyContent:'center', marginTop:40 }}>
+          <button onClick={() => scrollTo('contact')} style={{
+            background: accent, color:'#fff',
+            fontFamily:"'Space Grotesk',sans-serif", fontSize:15, fontWeight:600,
+            padding:'14px 32px', borderRadius:4, border:'none',
+            letterSpacing:'0.02em', transition:'opacity 150ms',
+          }}
+          onMouseEnter={e => e.target.style.opacity='0.85'}
+          onMouseLeave={e => e.target.style.opacity='1'}>
+            {ctaLabel}
+          </button>
+          <button onClick={() => scrollTo('work')} style={{
+            background:'transparent', color:W,
+            fontFamily:"'Space Grotesk',sans-serif", fontSize:15, fontWeight:600,
+            padding:'14px 32px', borderRadius:4, border:`1px solid ${N}`,
+            letterSpacing:'0.02em', transition:'border-color 150ms',
+          }}
+          onMouseEnter={e => e.target.style.borderColor = '#555'}
+          onMouseLeave={e => e.target.style.borderColor = N}>
+            View our work
+          </button>
+        </div>
+
+        {/* Stats */}
+        <div style={{
+          display:'grid', gridTemplateColumns:'repeat(4,1fr)',
+          gap:0, marginTop:72,
+          paddingTop:40, borderTop:`1px solid ${N}`,
+        }}>
+          {stats.map(({ n, l }) => (
+            <div key={l} style={{ textAlign:'center', padding:'0 16px', borderRight:`1px solid ${N}` }}>
+              <div style={{ fontFamily:"'BebasNeue',sans-serif", fontSize:44, letterSpacing:'0.04em', color:accent, lineHeight:1 }}>{n}</div>
+              <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:11, fontWeight:600, letterSpacing:'0.12em', textTransform:'uppercase', color:G, marginTop:6 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Scroll cue */}
+      <div style={{ position:'absolute', bottom:32, left:'50%', transform:'translateX(-50%)', display:'flex', flexDirection:'column', alignItems:'center', gap:8, zIndex:2 }}>
+        <span style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:10, fontWeight:600, letterSpacing:'0.16em', textTransform:'uppercase', color:'#3D3D3D' }}>Scroll</span>
+        <div style={{ width:1, height:32, background:'linear-gradient(to bottom, #3D3D3D, transparent)' }} />
+      </div>
+    </section>
+  );
+}
+
+/* ─── RESULTS TICKER ─────────────────────────────────────── */
+function ResultsTicker({ accent }) {
+  const items = [
+    '50M+ total views generated',
+    '50+ projects delivered',
+    '15 brand partners',
+    '100% on-time delivery',
+    '9 artists grown on social',
+    '4 white-label agency partners',
+    'Average 40% engagement lift',
+    'Content across 6 platforms',
+  ];
+  const doubled = [...items, ...items];
+
+  return (
+    <div id="results" style={{ background: accent, overflow:'hidden', padding:'14px 0', position:'relative' }}>
+      <style>{`
+        @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        .ticker-track { display: flex; gap: 0; animation: ticker 30s linear infinite; width: max-content; }
+        .ticker-track:hover { animation-play-state: paused; }
+      `}</style>
+      <div className="ticker-track">
+        {doubled.map((item, i) => (
+          <span key={i} style={{
+            fontFamily:"'Space Grotesk',sans-serif", fontSize:12, fontWeight:700,
+            letterSpacing:'0.1em', textTransform:'uppercase', color:'#0A0A0A',
+            whiteSpace:'nowrap', padding:'0 32px',
+            borderRight: i < doubled.length - 1 ? '1px solid rgba(0,0,0,0.2)' : 'none',
+          }}>{item}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── WORK GRID ──────────────────────────────────────────── */
+const PROJECTS = [
+  { id:1, title:'Spring Campaign Reel', client:'Sportswear Brand', type:'Brand', platform:'Instagram', views:'420K', dur:'0:32', aspect:'9:16', color:'#1a0a00' },
+  { id:2, title:'Artist Promo Series', client:'Indie Artist', type:'Artist', platform:'TikTok', views:'1.2M', dur:'1:14', aspect:'1:1', color:'#0a0010' },
+  { id:3, title:'Product Launch Cut', client:'Tech Startup', type:'Brand', platform:'YouTube', views:'85K', dur:'0:45', aspect:'16:9', color:'#001008' },
+  { id:4, title:'White Label Pack', client:'Agency Partner', type:'White Label', platform:'Multi', views:'-', dur:'3:02', aspect:'9:16', color:'#0a0a00' },
+  { id:5, title:'Identity Reel 2024', client:'Fashion Brand', type:'Brand', platform:'Instagram', views:'310K', dur:'0:58', aspect:'1:1', color:'#100005' },
+  { id:6, title:'Tour Recap Film', client:'Music Artist', type:'Artist', platform:'YouTube', views:'750K', dur:'2:10', aspect:'16:9', color:'#000a10' },
+];
+
+const FILTERS = ['All', 'Brand', 'Artist', 'White Label'];
+
+function WorkCard({ project, accent }) {
+  const [hov, setHov] = React.useState(false);
+
+  return (
+    <article
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: C, border:`1px solid ${hov ? '#3D3D3D' : N}`, borderRadius:4,
+        overflow:'hidden', cursor:'pointer',
+        transform: hov ? 'translateY(-3px)' : 'none',
+        transition:'all 250ms cubic-bezier(0.16,1,0.3,1)',
+      }}>
+      {/* Thumbnail */}
+      <div style={{
+        background: project.color || S, position:'relative',
+        height: project.aspect === '9:16' ? 260 : project.aspect === '1:1' ? 180 : 140,
+        display:'flex', alignItems:'center', justifyContent:'center',
+        overflow:'hidden',
+      }}>
+        {/* Subtle noise */}
+        <div style={{ position:'absolute', inset:0, opacity:0.06, backgroundImage:"url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")", backgroundSize:'200px' }} />
+        {/* Play button */}
+        <div style={{
+          width:44, height:44, borderRadius:'50%', zIndex:1,
+          background: hov ? accent : 'rgba(240,240,236,0.08)',
+          border: hov ? 'none' : `1px solid rgba(240,240,236,0.15)`,
+          display:'flex', alignItems:'center', justifyContent:'center',
+          transition:'all 250ms ease',
+        }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill={hov ? '#fff' : W}><polygon points="5 3 19 12 5 21 5 3" /></svg>
+        </div>
+        {/* Duration badge */}
+        <div style={{ position:'absolute', bottom:8, right:8, background:'rgba(10,10,10,0.85)', border:`1px solid ${N}`, borderRadius:2, padding:'2px 7px', fontFamily:"'Space Mono',monospace", fontSize:10, color:SL }}>{project.dur}</div>
+        {/* Aspect badge */}
+        <div style={{ position:'absolute', top:8, left:8, background:'rgba(10,10,10,0.85)', border:`1px solid ${N}`, borderRadius:2, padding:'2px 7px', fontFamily:"'Space Mono',monospace", fontSize:10, color:G }}>{project.aspect}</div>
+        {/* Views */}
+        {project.views !== '-' && (
+          <div style={{ position:'absolute', top:8, right:8, background: accent + '22', border:`1px solid ${accent}44`, borderRadius:2, padding:'2px 7px', fontFamily:"'Space Mono',monospace", fontSize:10, color:accent }}>{project.views} views</div>
+        )}
+      </div>
+      {/* Info */}
+      <div style={{ padding:'12px 14px' }}>
+        <div style={{ fontSize:13, fontWeight:600, color:W, marginBottom:6 }}>{project.title}</div>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <span style={{ fontSize:11, color:G }}>{project.client}</span>
+          <span style={{ fontSize:10, fontWeight:600, letterSpacing:'0.08em', textTransform:'uppercase', color:accent }}>{project.type}</span>
+        </div>
+        <div style={{ fontSize:10, color:'#3D3D3D', marginTop:4, fontFamily:"'Space Mono',monospace" }}>{project.platform}</div>
+      </div>
+    </article>
+  );
+}
+
+function Work({ accent }) {
+  const [filter, setFilter] = React.useState('All');
+
+  const filtered = filter === 'All' ? PROJECTS : PROJECTS.filter(p => p.type === filter);
+
+  return (
+    <section id="work" style={{ background: S, padding:'96px 40px' }}>
+      <div style={{ maxWidth:1200, margin:'0 auto' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-end', marginBottom:40 }}>
+          <div>
+            <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:11, fontWeight:600, letterSpacing:'0.18em', textTransform:'uppercase', color:G, marginBottom:8 }}>Selected Work</div>
+            <h2 style={{ fontFamily:"'BebasNeue',sans-serif", fontSize:52, letterSpacing:'0.04em', color:W, lineHeight:1 }}>THE REEL</h2>
+          </div>
+          <div style={{ display:'flex', gap:8 }}>
+            {FILTERS.map(f => (
+              <button key={f} onClick={() => setFilter(f)} style={{
+                fontFamily:"'Space Grotesk',sans-serif", fontSize:12, fontWeight:500,
+                padding:'6px 14px', borderRadius:3,
+                border: filter === f ? `1px solid ${accent}` : `1px solid ${N}`,
+                background: filter === f ? accent + '14' : 'transparent',
+                color: filter === f ? accent : G,
+                cursor:'pointer', transition:'all 150ms ease',
+              }}>{f}</button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
+          {filtered.map(p => <WorkCard key={p.id} project={p} accent={accent} />)}
+        </div>
+
+        <div style={{ marginTop:48, textAlign:'center' }}>
+          <button onClick={() => scrollTo('contact')} style={{
+            background:'transparent', color:SL,
+            fontFamily:"'Space Grotesk',sans-serif", fontSize:13, fontWeight:500,
+            padding:'10px 24px', borderRadius:4, border:`1px solid ${N}`,
+            cursor:'pointer', letterSpacing:'0.02em', transition:'all 150ms',
+          }}
+          onMouseEnter={e => { e.target.style.borderColor='#555'; e.target.style.color=W; }}
+          onMouseLeave={e => { e.target.style.borderColor=N; e.target.style.color=SL; }}>
+            Want to see more? Let's talk →
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── SOCIAL PROOF / RESULTS ─────────────────────────────── */
+function SocialProof({ accent }) {
+  const proofs = [
+    { metric:'1.2M', label:'Views on a single TikTok', sub:'Indie artist campaign, 72 hrs post' },
+    { metric:'+340%', label:'Profile visits in 30 days', sub:'Sportswear brand, 4-video series' },
+    { metric:'40K', label:'New followers gained', sub:'Musicians across 3 tour recap cuts' },
+    { metric:'8×', label:'ROAS on paid ad creative', sub:'E-commerce brand, 2 ad formats' },
+  ];
+
+  return (
+    <section style={{ background: B, padding:'96px 40px', borderTop:`1px solid ${N}` }}>
+      <div style={{ maxWidth:1200, margin:'0 auto' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:80, alignItems:'center' }}>
+          <div>
+            <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:11, fontWeight:600, letterSpacing:'0.18em', textTransform:'uppercase', color:G, marginBottom:8 }}>Proof of Work</div>
+            <h2 style={{ fontFamily:"'BebasNeue',sans-serif", fontSize:56, letterSpacing:'0.04em', color:W, lineHeight:1, marginBottom:20 }}>
+              RESULTS<br/><span style={{ color:accent }}>NOT PROMISES</span>
+            </h2>
+            <p style={{ fontSize:15, lineHeight:1.8, color:SL, maxWidth:420 }}>
+              We measure every deliverable by what it moves, views, followers, conversions. Here's what our content has generated for real clients.
+            </p>
+          </div>
+
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:1, background:N, borderRadius:4, overflow:'hidden' }}>
+            {proofs.map(({ metric, label, sub }, i) => (
+              <div key={i} style={{ background:C, padding:'32px 28px' }}>
+                <div style={{ fontFamily:"'BebasNeue',sans-serif", fontSize:52, letterSpacing:'0.04em', color:accent, lineHeight:1, marginBottom:8 }}>{metric}</div>
+                <div style={{ fontSize:13, fontWeight:600, color:W, marginBottom:6 }}>{label}</div>
+                <div style={{ fontFamily:"'Space Mono',monospace", fontSize:10, color:G, lineHeight:1.6 }}>{sub}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── SERVICES ───────────────────────────────────────────── */
+const SERVICES = [
+  {
+    num: '01',
+    title: 'Social Content',
+    desc: 'Short-form video designed for Instagram, TikTok, and YouTube, hook-first, scroll-stopping, and on-brand. Shot and edited to platform spec.',
+    tags: ['Reels', 'TikToks', 'Shorts', 'Feed Video'],
+    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>,
+  },
+  {
+    num: '02',
+    title: 'Brand Identity',
+    desc: 'Cinematic brand films, launch content, and identity reels that establish who you are before you say a word.',
+    tags: ['Brand Film', 'Launch', 'Identity', 'Commercial'],
+    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>,
+  },
+  {
+    num: '03',
+    title: 'Artist Content',
+    desc: 'Music video cuts, tour recaps, press kits, and social content that grows your audience and builds your world.',
+    tags: ['Music Video', 'Tour', 'Press Kit', 'Social'],
+    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>,
+  },
+  {
+    num: '04',
+    title: 'White Label',
+    desc: 'Behind-the-scenes production for agencies. We shoot, edit, and deliver under your brand. Silent partner, full output.',
+    tags: ['Agency', 'Production', 'Editing', 'Retainer'],
+    icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>,
+  },
+];
+
+function Services({ accent, ctaLabel }) {
+  const [hov, setHov] = React.useState(null);
+
+  return (
+    <section id="services" style={{ background: B, padding:'96px 40px', borderTop:`1px solid ${N}` }}>
+      <div style={{ maxWidth:1200, margin:'0 auto' }}>
+        <div style={{ marginBottom:56 }}>
+          <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:11, fontWeight:600, letterSpacing:'0.18em', textTransform:'uppercase', color:G, marginBottom:8 }}>What We Do</div>
+          <h2 style={{ fontFamily:"'BebasNeue',sans-serif", fontSize:52, letterSpacing:'0.04em', color:W, lineHeight:1 }}>SERVICES</h2>
+        </div>
+
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', border:`1px solid ${N}`, borderRadius:4, overflow:'hidden' }}>
+          {SERVICES.map((svc, i) => (
+            <div key={i}
+              onMouseEnter={() => setHov(i)}
+              onMouseLeave={() => setHov(null)}
+              style={{
+                background: hov === i ? C : S,
+                padding:'36px 28px',
+                borderRight: i < 3 ? `1px solid ${N}` : 'none',
+                transition:'background 250ms ease',
+              }}>
+              <div style={{ fontFamily:"'Space Mono',monospace", fontSize:10, color:accent, marginBottom:16, letterSpacing:'0.08em' }}>{svc.num}</div>
+              <div style={{
+                width:40, height:40, borderRadius:4, background:accent, color:'#fff',
+                display:'flex', alignItems:'center', justifyContent:'center', marginBottom:20,
+              }}>{svc.icon}</div>
+              <div style={{ fontSize:16, fontWeight:700, color:W, marginBottom:10 }}>{svc.title}</div>
+              <div style={{ fontSize:13, color:G, lineHeight:1.8, marginBottom:20 }}>{svc.desc}</div>
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+                {svc.tags.map(t => (
+                  <span key={t} style={{ fontSize:10, fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase', color:SL, background:N, borderRadius:2, padding:'3px 7px' }}>{t}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop:56, display:'flex', alignItems:'center', justifyContent:'space-between', paddingTop:40, borderTop:`1px solid ${N}` }}>
+          <div style={{ fontFamily:"'BebasNeue',sans-serif", fontSize:42, letterSpacing:'0.04em', color:W, lineHeight:1 }}>READY TO BUILD YOUR FEED?</div>
+          <button onClick={() => scrollTo('contact')} style={{
+            background: accent, color:'#fff',
+            fontFamily:"'Space Grotesk',sans-serif", fontSize:14, fontWeight:600,
+            padding:'12px 28px', borderRadius:4, border:'none',
+            cursor:'pointer', letterSpacing:'0.02em', flexShrink:0,
+            transition:'opacity 150ms',
+          }}
+          onMouseEnter={e => e.target.style.opacity='0.85'}
+          onMouseLeave={e => e.target.style.opacity='1'}>
+            {ctaLabel} →
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── TESTIMONIALS ───────────────────────────────────────── */
+const TESTIMONIALS = [
+  { quote: "The reel they cut for our spring drop drove 420K views in 48 hours. First time our content actually moved product.", name: "Jordan K.", role: "Brand Manager, Sportswear Co.", },
+  { quote: "Tanner understands the platform. Doesn't just make videos, makes content that performs. Huge difference.", name: "Marcus T.", role: "Independent Artist", },
+  { quote: "We've used TV Productions as our white-label partner for 2 years. Every brief comes back on brand, on time, on budget.", name: "Alex R.", role: "Creative Director, Agency", },
+];
+
+function Testimonials({ accent }) {
+  const [active, setActive] = React.useState(0);
+
+  return (
+    <section style={{ background: S, padding:'96px 40px', borderTop:`1px solid ${N}` }}>
+      <div style={{ maxWidth:1200, margin:'0 auto' }}>
+        <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:11, fontWeight:600, letterSpacing:'0.18em', textTransform:'uppercase', color:G, marginBottom:8 }}>Client Feedback</div>
+        <h2 style={{ fontFamily:"'BebasNeue',sans-serif", fontSize:52, letterSpacing:'0.04em', color:W, lineHeight:1, marginBottom:48 }}>WHAT THEY SAY</h2>
+
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:1, background:N, borderRadius:4, overflow:'hidden' }}>
+          {TESTIMONIALS.map((t, i) => (
+            <div key={i} onClick={() => setActive(i)} style={{
+              background: active === i ? C : B,
+              padding:'36px 32px', cursor:'pointer',
+              transition:'background 250ms ease',
+              borderLeft: active === i ? `3px solid ${accent}` : '3px solid transparent',
+            }}>
+              <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:28, color: accent, lineHeight:1, marginBottom:16, fontWeight:700 }}>"</div>
+              <p style={{ fontSize:14, lineHeight:1.8, color: active === i ? W : SL, marginBottom:24, textWrap:'pretty' }}>
+                {t.quote}
+              </p>
+              <div style={{ fontSize:13, fontWeight:600, color:W }}>{t.name}</div>
+              <div style={{ fontSize:11, color:G, marginTop:2 }}>{t.role}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── ABOUT ──────────────────────────────────────────────── */
+function About({ accent }) {
+  return (
+    <section id="about" style={{ background: B, padding:'96px 40px', borderTop:`1px solid ${N}` }}>
+      <div style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:80, alignItems:'center' }}>
+        {/* Visual */}
+        <div style={{ position:'relative' }}>
+          <div style={{
+            background: C, border:`1px solid ${N}`, borderRadius:4,
+            height:480, display:'flex', flexDirection:'column',
+            alignItems:'center', justifyContent:'center',
+            overflow:'hidden', position:'relative',
+          }}>
+            <img src="uploads/Tanner.jpeg" style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', position:'absolute', inset:0 }} alt="Tanner Vonnahme, Founder of TV Productions" />
+            {/* Dark vignette overlay for text legibility */}
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.1) 50%, transparent 100%)', zIndex:1 }} />
+            <div style={{ fontFamily:"'BebasNeue',sans-serif", fontSize:24, letterSpacing:'0.12em', color:W, position:'absolute', bottom:40, left:0, right:0, textAlign:'center', zIndex:2 }}>TANNER VONNAHME</div>
+            <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:12, color:SL, position:'absolute', bottom:20, left:0, right:0, textAlign:'center', zIndex:2 }}>Founder · Producer</div>
+            {/* Accent line */}
+            <div style={{ position:'absolute', bottom:0, left:0, right:0, height:3, background:`linear-gradient(to right, ${accent}, transparent)`, zIndex:2 }} />
+          </div>
+        </div>
+
+        {/* Copy */}
+        <div>
+          <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:11, fontWeight:600, letterSpacing:'0.18em', textTransform:'uppercase', color:G, marginBottom:8 }}>About</div>
+          <h2 style={{ fontFamily:"'BebasNeue',sans-serif", fontSize:56, letterSpacing:'0.04em', color:W, lineHeight:1, marginBottom:28 }}>
+            THE NAME<br/><span style={{ color:accent }}>SAYS IT ALL</span>
+          </h2>
+          <p style={{ fontSize:15, lineHeight:1.9, color:SL, marginBottom:16 }}>
+            Playing off my own initials, TV Productions was founded out of my lifelong love for television and film and the way a great story made me feel.
+          </p>
+          <p style={{ fontSize:15, lineHeight:1.9, color:SL, marginBottom:36 }}>
+            Though the medium in which we consume visually has drastically changed, the pursuit of creating that feeling for people has not. That same drive is what we bring to every project. Content that doesn't just look good but actually connects.
+          </p>
+
+          <div style={{ display:'flex', gap:32, paddingTop:32, borderTop:`1px solid ${N}` }}>
+            {[['2023','Year Founded'],['50+','Projects'],['50M+','Views']].map(([n, l]) => (
+              <div key={l}>
+                <div style={{ fontFamily:"'BebasNeue',sans-serif", fontSize:36, color:accent, lineHeight:1 }}>{n}</div>
+                <div style={{ fontSize:11, fontWeight:600, letterSpacing:'0.1em', textTransform:'uppercase', color:G, marginTop:4 }}>{l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── CONTACT ────────────────────────────────────────────── */
+function Contact({ accent }) {
+  const [form, setForm] = React.useState({ name:'', email:'', company:'', service:'', message:'' });
+  const [sent, setSent] = React.useState(false);
+  const [focused, setFocused] = React.useState(null);
+
+  const fieldStyle = (name) => ({
+    width:'100%', background:'#141414', border:`1px solid ${focused===name ? accent : N}`,
+    borderRadius:4, padding:'12px 14px', fontSize:14, color:W,
+    fontFamily:"'Space Grotesk',sans-serif", outline:'none',
+    transition:'border-color 150ms', resize:'vertical',
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSent(true);
+  };
+
+  return (
+    <section id="contact" style={{ background: S, padding:'96px 40px', borderTop:`1px solid ${N}` }}>
+      <div style={{ maxWidth:1200, margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:80 }}>
+        {/* Left */}
+        <div>
+          <div style={{ fontFamily:"'Space Grotesk',sans-serif", fontSize:11, fontWeight:600, letterSpacing:'0.18em', textTransform:'uppercase', color:G, marginBottom:8 }}>Let's Work</div>
+          <h2 style={{ fontFamily:"'BebasNeue',sans-serif", fontSize:56, letterSpacing:'0.04em', color:W, lineHeight:1, marginBottom:24 }}>
+            START A<br/><span style={{ color:accent }}>PROJECT</span>
+          </h2>
+          <p style={{ fontSize:15, lineHeight:1.9, color:SL, marginBottom:40 }}>
+            Tell us what you're building. We'll respond within 24 hours with a strategy and quote.
+          </p>
+
+          <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
+            {[
+              { icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>, label:'Email', value:'tannervonnahme2@gmail.com' },
+              { icon:<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>, label:'Instagram', value:'@_tvproductions' },
+            ].map(({ icon, label, value }) => (
+              <div key={label} style={{ display:'flex', alignItems:'center', gap:12 }}>
+                <div style={{ width:36, height:36, borderRadius:4, background:N, display:'flex', alignItems:'center', justifyContent:'center', color:G, flexShrink:0 }}>{icon}</div>
+                <div>
+                  <div style={{ fontSize:10, fontWeight:600, letterSpacing:'0.1em', textTransform:'uppercase', color:G }}>{label}</div>
+                  <div style={{ fontSize:13, color:SL }}>{value}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Form */}
+        <div>
+          {sent ? (
+            <div style={{ height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center', gap:16, padding:'60px 0' }}>
+              <div style={{ fontFamily:"'BebasNeue',sans-serif", fontSize:52, color:accent, letterSpacing:'0.04em', lineHeight:1 }}>GOT IT.</div>
+              <p style={{ fontSize:15, color:SL, maxWidth:320, lineHeight:1.7 }}>We'll review your brief and come back to you within 24 hours with next steps.</p>
+              <button onClick={() => setSent(false)} style={{ background:'transparent', color:G, border:`1px solid ${N}`, borderRadius:4, padding:'8px 20px', fontFamily:"'Space Grotesk',sans-serif", fontSize:13, cursor:'pointer', marginTop:8 }}>Send another</button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} style={{ display:'flex', flexDirection:'column', gap:16 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+                <div>
+                  <label style={{ fontSize:11, fontWeight:600, letterSpacing:'0.1em', textTransform:'uppercase', color:G, display:'block', marginBottom:6 }}>Name</label>
+                  <input required style={fieldStyle('name')} placeholder="Your name" value={form.name} onChange={e => setForm(f=>({...f, name:e.target.value}))} onFocus={() => setFocused('name')} onBlur={() => setFocused(null)} />
+                </div>
+                <div>
+                  <label style={{ fontSize:11, fontWeight:600, letterSpacing:'0.1em', textTransform:'uppercase', color:G, display:'block', marginBottom:6 }}>Email</label>
+                  <input required type="email" style={fieldStyle('email')} placeholder="you@company.com" value={form.email} onChange={e => setForm(f=>({...f, email:e.target.value}))} onFocus={() => setFocused('email')} onBlur={() => setFocused(null)} />
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize:11, fontWeight:600, letterSpacing:'0.1em', textTransform:'uppercase', color:G, display:'block', marginBottom:6 }}>Company / Brand</label>
+                <input style={fieldStyle('company')} placeholder="Optional" value={form.company} onChange={e => setForm(f=>({...f, company:e.target.value}))} onFocus={() => setFocused('company')} onBlur={() => setFocused(null)} />
+              </div>
+              <div>
+                <label style={{ fontSize:11, fontWeight:600, letterSpacing:'0.1em', textTransform:'uppercase', color:G, display:'block', marginBottom:6 }}>Service</label>
+                <select style={{ ...fieldStyle('service'), cursor:'pointer' }} value={form.service} onChange={e => setForm(f=>({...f, service:e.target.value}))} onFocus={() => setFocused('service')} onBlur={() => setFocused(null)}>
+                  <option value="">Select a service…</option>
+                  <option>Social Content</option>
+                  <option>Brand Identity</option>
+                  <option>Artist Content</option>
+                  <option>White Label</option>
+                  <option>Not sure yet</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize:11, fontWeight:600, letterSpacing:'0.1em', textTransform:'uppercase', color:G, display:'block', marginBottom:6 }}>Brief</label>
+                <textarea required rows={4} style={fieldStyle('message')} placeholder="Tell us about your project, goals, and timeline." value={form.message} onChange={e => setForm(f=>({...f, message:e.target.value}))} onFocus={() => setFocused('message')} onBlur={() => setFocused(null)} />
+              </div>
+              <button type="submit" style={{
+                background: accent, color:'#fff',
+                fontFamily:"'Space Grotesk',sans-serif", fontSize:14, fontWeight:600,
+                padding:'14px', borderRadius:4, border:'none', cursor:'pointer',
+                letterSpacing:'0.03em', marginTop:4, transition:'opacity 150ms',
+              }}
+              onMouseEnter={e => e.target.style.opacity='0.85'}
+              onMouseLeave={e => e.target.style.opacity='1'}>
+                Send brief →
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── FOOTER ─────────────────────────────────────────────── */
+function Footer({ accent }) {
+  const year = new Date().getFullYear();
+  return (
+    <footer style={{ background: B, borderTop:`1px solid ${N}`, padding:'48px 40px 32px' }}>
+      <div style={{ maxWidth:1200, margin:'0 auto' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:40, paddingBottom:40, borderBottom:`1px solid ${N}` }}>
+          <div>
+            <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
+              <img src="assets/TV_Logo.png" style={{ width:22, height:22, filter:'invert(1)', opacity:0.6 }} alt="TV Productions" />
+              <span style={{ fontFamily:"'BebasNeue',sans-serif", fontSize:18, letterSpacing:'0.08em', color:G }}>TV PRODUCTIONS</span>
+            </div>
+            <div style={{ fontSize:12, color:'#3D3D3D', maxWidth:200, lineHeight:1.7 }}>Social-first video for brands and artists.</div>
+          </div>
+
+          <div style={{ display:'flex', gap:48 }}>
+            {[
+              { head:'Company', links:['Work','Services','About','Contact'] },
+              { head:'Services', links:['Social Content','Brand Identity','Artist Content','White Label'] },
+              { head:'Connect', links:['Instagram','TikTok','YouTube','Email'] },
+            ].map(({ head, links }) => (
+              <div key={head} style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                <div style={{ fontSize:10, fontWeight:700, letterSpacing:'0.14em', textTransform:'uppercase', color:'#3D3D3D', marginBottom:4 }}>{head}</div>
+                {links.map(l => (
+                  <span key={l} style={{ fontSize:13, color:G, cursor:'pointer', transition:'color 150ms' }}
+                    onMouseEnter={e => e.target.style.color=W}
+                    onMouseLeave={e => e.target.style.color=G}
+                    onClick={() => scrollTo(l.toLowerCase().replace(' ',''))}>
+                    {l}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+          <div style={{ fontSize:11, color:'#3D3D3D' }}>© {year} TV Productions. All rights reserved.</div>
+          <div style={{ fontFamily:"'Space Mono',monospace", fontSize:10, color:'#3D3D3D' }}>Tanner Vonnahme · tvproductions.co</div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ─── APP ────────────────────────────────────────────────── */
+function App() {
+  const [tweaks, setTweak] = window.useTweaks(TWEAK_DEFAULTS);
+  const { TweaksPanel, TweakSection, TweakColor, TweakText, TweakToggle } = window;
+  const accent = tweaks.accentColor;
+  const ctaLabel = tweaks.ctaLabel;
+
+  return (
+    <div>
+      <TVLogo3D />
+      <Header accent={accent} ctaLabel={ctaLabel} />
+      <main>
+        <Hero accent={accent} ctaLabel={ctaLabel} headline={tweaks.heroHeadline} />
+        <ResultsTicker accent={accent} />
+        <Work accent={accent} />
+        <SocialProof accent={accent} />
+        <Services accent={accent} ctaLabel={ctaLabel} />
+        {tweaks.showTestimonials && <Testimonials accent={accent} />}
+        <About accent={accent} />
+        <Contact accent={accent} />
+      </main>
+      <Footer accent={accent} />
+
+      <TweaksPanel>
+        <TweakSection label="Brand">
+          <TweakColor id="accentColor" label="Accent color" />
+        </TweakSection>
+        <TweakSection label="Copy">
+          <TweakText id="ctaLabel" label="CTA button label" />
+          <TweakText id="heroHeadline" label="Hero headline" />
+        </TweakSection>
+        <TweakSection label="Sections">
+          <TweakToggle id="showTestimonials" label="Show testimonials" />
+        </TweakSection>
+      </TweaksPanel>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+<div id="root"></div>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="120" height="80" fill="#0A0A0A"/>
+    <text x="60" y="35" font-family="Arial" font-size="18" fill="#FF2D20" text-anchor="middle" font-weight="bold">TV</text>
+    <text x="60" y="52" font-family="Arial" font-size="7" fill="#6B6B6B" text-anchor="middle">PRODUCTIONS</text>
+  </svg>
+</template>
+</body>
+</html>

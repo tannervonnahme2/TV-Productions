@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio, TV Productions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_page-base.css" />
+  <style>
+    .work-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 8px;
+    }
+    .work-grid .tile {
+      position: relative;
+      aspect-ratio: 4 / 5;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: filter 200ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms;
+    }
+    .work-grid .tile:hover {
+      filter: brightness(1.08);
+      border-color: var(--gray);
+    }
+    .work-grid .tile .ph {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg, #1f1f1f 0%, #0a0a0a 100%);
+    }
+    .work-grid .tile.t1 .ph {
+      background:
+        url('https://i.ytimg.com/vi/NnEYboac-9g/hqdefault.jpg') center / contain no-repeat,
+        #000;
+    }
+    .work-grid .tile.t2 .ph {
+      inset: 0;
+      background:
+        linear-gradient(180deg, transparent 72.5%, #000 72.5%),
+        url('uploads/Red Bull Thumbnail.png') center top / cover no-repeat #000;
+    }
+    .work-grid .tile.t3 .ph {
+      background:
+        url('https://i.ytimg.com/vi/_o0NS70Yfd0/hqdefault.jpg') center / contain no-repeat,
+        #000;
+    }
+    .work-grid .tile.t4 .ph {
+      inset: 0;
+      background:
+        linear-gradient(180deg, transparent 72.5%, #000 72.5%),
+        url('uploads/Raising Canes.jpg') center 88% / 130% auto no-repeat #000;
+    }
+    .work-grid .tile.t5 .ph {
+      inset: 0;
+      background:
+        linear-gradient(180deg, transparent 72.5%, #000 72.5%),
+        url('uploads/Abbott Elementary.png') center 58% / cover no-repeat #000;
+    }
+    .work-grid .tile.t6 .ph {
+      inset: 0;
+      background:
+        linear-gradient(180deg, transparent 72.5%, #000 72.5%),
+        url('uploads/LA Crew.png') center bottom / cover no-repeat #000;
+    }
+    .work-grid .tile .ph::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px,
+        transparent 1px, transparent 4px);
+    }
+    .work-grid .tile .meta {
+      position: absolute;
+      left: 16px; right: 16px;
+      top: 72.5%;
+      padding-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      z-index: 2;
+    }
+    .work-grid .tile .meta .title {
+      font-family: 'BebasNeue', sans-serif;
+      letter-spacing: 0.05em;
+      font-size: 22px;
+      color: var(--white);
+    }
+    .work-grid .tile .meta .tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--silver);
+      opacity: 0.8;
+    }
+    .work-grid .tile .meta .stats {
+      list-style: none;
+      margin: 10px 0 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-family: 'Space Mono', monospace;
+      font-size: 9.5px;
+      line-height: 1.35;
+      color: rgba(240,240,236,0.72);
+      max-width: 96%;
+    }
+    .work-grid .tile .meta .stats li {
+      position: relative;
+      padding-left: 12px;
+    }
+    .work-grid .tile .meta .stats li::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 6px;
+      width: 5px; height: 1px;
+      background: var(--signal);
+    }
+    .work-grid .tile .meta .stats strong {
+      color: var(--white);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .work-grid .tile .chip {
+      position: absolute;
+      top: 14px; left: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      background: rgba(10,10,10,0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 2px;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--silver);
+      z-index: 2;
+    }
+    .work-grid .tile .chip .rec {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--signal); box-shadow: 0 0 6px var(--signal);
+    }
+    @media (max-width: 900px) {
+      .work-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 540px) {
+      .work-grid { grid-template-columns: 1fr; }
+    }
+    .page-hero .lede {
+      max-width: none;
+      white-space: nowrap;
+      font-size: 15px;
+    }
+    @media (max-width: 820px) {
+      .page-hero .lede { white-space: normal; font-size: 17px; }
+    }
+
+    /* ── Our Partners ── */
+    .partners-logos {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+      padding: 24px 0 8px;
+    }
+    .partners-logos img {
+      width: 100%;
+      max-width: 720px;
+      height: auto;
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="home-link" href="Home.html">
+    <span class="glyph">TV</span>
+    <span>Back to home</span>
+  </a>
+  <nav class="nav">
+    <a href="Portfolio.html" class="active">Portfolio</a>
+    <a href="Services.html">Services</a>
+    <a href="About.html">About</a>
+    <a href="Contact.html">Contact</a>
+  </nav>
+  <div class="channel-pill"><span class="rec"></span>CH 01</div>
+</header>
+
+<section class="page-hero">
+  <div class="crumbs">
+    <span>TV</span><span class="sep">/</span><span class="here">Portfolio</span>
+  </div>
+  <h1>Selected<br/>Work.</h1>
+  <p class="lede">A taste of branded, social-first content for our partners that delivered real results.</p>
+</section>
+
+<main class="content">
+  <div class="section" style="border-top: none; padding-top: 16px;">
+    <div class="work-grid">
+      <a href="https://www.youtube.com/watch?v=NnEYboac-9g" target="_blank" rel="noopener" class="tile t1">
+        <div class="ph"></div>
+        <div class="meta">
+          <span class="title">The Act by Coast Contra</span>
+          <ul class="stats">
+            <li><strong>1.5M</strong> views across content from this one day shoot</li>
+            <li>Over <strong>110K</strong> engagements (likes, comments, shares)</li>
+            <li>Recognized by greats like <strong>Busta Rhymes</strong>, <strong>Snoop Dogg</strong>, and <strong>DJ Jazzy Jeff</strong></li>
+          </ul>
+        </div>
+      </a>
+      <a href="https://www.instagram.com/reels/DGlXVMkPzaj/" target="_blank" rel="noopener" class="tile t2">
+        <div class="ph"></div>
+        <div class="meta">
+          <span class="title">Powered by RedBull with Veeze</span>
+          <ul class="stats">
+            <li><strong>671K</strong> views on social</li>
+            <li>Over <strong>33K</strong> engagements (likes, comments, shares)</li>
+            <li>Cross-promoted <strong>Red Bull</strong> and <strong>Veeze's</strong> new single</li>
+          </ul>
+        </div>
+      </a>
+      <a href="https://youtu.be/_o0NS70Yfd0" target="_blank" rel="noopener" class="tile t3">
+        <div class="ph"></div>
+        <div class="meta">
+          <span class="title">11.1 Questions with Shoreline Mafia</span>
+          <ul class="stats">
+            <li><strong>1 of 4</strong> episodes produced for Beatbox</li>
+            <li>Over <strong>5M</strong> views across all 4 episodes</li>
+            <li>Promoted new <strong>Beatbox Mystic Grape</strong> flavor</li>
+          </ul>
+        </div>
+      </a>
+      <a href="https://www.instagram.com/reel/DWJlT9djH8H/" target="_blank" rel="noopener" class="tile t4">
+        <div class="ph"></div>
+        <div class="meta">
+          <span class="title">Raising Cane's × Fanatics Flag Football</span>
+          <ul class="stats">
+            <li>Over <strong>8M</strong> views across IG and TikTok</li>
+            <li>Nearly <strong>250K</strong> engagements</li>
+            <li>In partnership with <strong>Zero Blitz Media</strong></li>
+          </ul>
+        </div>
+      </a>
+      <a href="https://www.tiktok.com/@abbottelementaryabc/video/7423517402773687594" target="_blank" rel="noopener" class="tile t5">
+        <div class="ph"></div>
+        <div class="meta">
+          <span class="title">Abbott Elementary × Clio Award</span>
+          <ul class="stats">
+            <li>Season 3 rollout content for <strong>Emmy-winning</strong> show</li>
+            <li>Winner of a <strong>Clio Award 2025</strong></li>
+            <li>Over <strong>15M</strong> views across TikTok</li>
+          </ul>
+        </div>
+      </a>
+      <a href="https://www.instagram.com/reels/CjsyOoPgC1J/" target="_blank" rel="noopener" class="tile t6">
+        <div class="ph"></div>
+        <div class="meta">
+          <span class="title">USC × JuJu NIL Collaboration</span>
+          <ul class="stats">
+            <li>Over <strong>250K</strong> views</li>
+            <li>Sold out all merch in <strong>24 hours</strong></li>
+          </ul>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section partners">
+    <h2>Our Partners.</h2>
+    <div class="partners-logos">
+      <img src="uploads/partners-logos-white.png" alt="Partner brand logos: AEG, Beatbox, Coast Contra, NFL, Puma, Abbott Elementary, Red Bull, SpringHill Company, Team USA, Twitter, USC, Topo Chico" />
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="mark">TV</div>
+  <div>© TV Productions · Tanner Vonnahme</div>
+</footer>
+
+</body>
+</html>

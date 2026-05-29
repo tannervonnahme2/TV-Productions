@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact, TV Productions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_page-base.css" />
+  <style>
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 48px;
+      margin-top: 16px;
+    }
+    @media (max-width: 900px) {
+      .contact-grid { grid-template-columns: 1fr; gap: 32px; }
+    }
+
+    .field-stack { display: flex; flex-direction: column; gap: 18px; }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .field label {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+    .field input, .field textarea, .field select {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--white);
+      font-family: inherit;
+      font-size: 15px;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      border-color: var(--signal);
+    }
+    .field textarea { resize: vertical; min-height: 120px; font-family: inherit; }
+
+    .submit {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 22px;
+      background: var(--signal);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-family: 'BebasNeue', sans-serif;
+      letter-spacing: 0.08em;
+      font-size: 18px;
+      cursor: pointer;
+      transition: filter 200ms cubic-bezier(0.16, 1, 0.3, 1), transform 80ms;
+      align-self: flex-start;
+      margin-top: 8px;
+    }
+    .submit:hover { filter: brightness(1.1); }
+    .submit:active { transform: scale(0.98); }
+
+    .side-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 28px;
+    }
+    .side-card .eyebrow { margin-bottom: 14px; }
+    .side-card h3 {
+      font-family: 'BebasNeue', sans-serif;
+      letter-spacing: 0.04em;
+      font-size: 30px;
+      line-height: 1;
+      margin-bottom: 14px;
+      color: var(--white);
+    }
+    .side-card .line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-top: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .side-card .line:first-of-type { border-top: none; }
+    .side-card .line .k {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+    .side-card .line .v { color: var(--white); }
+    .side-card .line a.v:hover { color: var(--signal); }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="home-link" href="Home.html">
+    <span class="glyph">TV</span>
+    <span>Back to home</span>
+  </a>
+  <nav class="nav">
+    <a href="Portfolio.html">Portfolio</a>
+    <a href="Services.html">Services</a>
+    <a href="About.html">About</a>
+    <a href="Contact.html" class="active">Contact</a>
+  </nav>
+  <div class="channel-pill"><span class="rec"></span>CH 04</div>
+</header>
+
+<section class="page-hero">
+  <div class="crumbs">
+    <span>TV</span><span class="sep">/</span><span class="here">Contact</span>
+  </div>
+  <h1>Start a<br/>project.</h1>
+  <p class="lede">Tell us what you're making. We shoot, edit, and deliver: on strategy, on brand, and on time.</p>
+</section>
+
+<main class="content">
+  <div class="section" style="border-top: none; padding-top: 16px;">
+    <div class="contact-grid">
+      <form class="field-stack" onsubmit="event.preventDefault(); alert('Form placeholder, wire to real submit later.');">
+        <div class="field">
+          <label for="name">Name</label>
+          <input id="name" type="text" placeholder="Your name" />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="you@brand.com" />
+        </div>
+        <div class="field">
+          <label for="brand">Brand or Company Name</label>
+          <input id="brand" type="text" placeholder="Who are we making this for" />
+        </div>
+        <div class="field">
+          <label for="type">Project type</label>
+          <select id="type">
+            <option>Social-first content</option>
+            <option>Brand film</option>
+            <option>Artist / music video</option>
+            <option>White-label production</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="budget">Estimated budget</label>
+          <select id="budget">
+            <option>Select a range</option>
+            <option>Under $5K</option>
+            <option>$5K – $15K</option>
+            <option>$15K – $50K</option>
+            <option>$50K – $100K</option>
+            <option>$100K+</option>
+            <option>Not sure yet</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="brief">Brief</label>
+          <textarea id="brief" placeholder="Goals, deliverables, timing, anything that helps us scope."></textarea>
+        </div>
+        <button class="submit" type="submit">Send signal →</button>
+      </form>
+
+      <aside class="side-card">
+        <div class="eyebrow">Direct lines</div>
+        <h3>Reach us.</h3>
+        <div class="line"><span class="k">Email</span><a class="v" href="mailto:tannervonnahme2@gmail.com">tannervonnahme2@gmail.com</a></div>
+        <div class="line"><span class="k">Instagram</span><a class="v" href="https://instagram.com/_tvproductions" target="_blank" rel="noopener">@_tvproductions</a></div>
+        <div class="line"><span class="k">Based</span><span class="v">Los Angeles, CA</span></div>
+        <div class="line"><span class="k">Response</span><span class="v">Within 48 hours</span></div>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="mark">TV</div>
+  <div>© TV Productions · Tanner Vonnahme</div>
+</footer>
+
+</body>
+</html>

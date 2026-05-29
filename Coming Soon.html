@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coming Soon, TV Productions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="_page-base.css" />
+  <style>
+    .soon-stage {
+      position: relative;
+      min-height: calc(100vh - 70px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 64px 28px;
+      overflow: hidden;
+    }
+    .soon-stage canvas#static-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.07;
+      z-index: 0;
+    }
+    .soon-stage::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 50%, transparent 30%, rgba(10,10,10,0.95) 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .soon-stage > * { position: relative; z-index: 2; }
+    .soon-stage .crumbs {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      color: var(--silver);
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+    .soon-stage .crumbs .here { color: var(--signal); }
+    .soon-stage h1 {
+      font-family: 'BebasNeue', sans-serif;
+      letter-spacing: 0.04em;
+      font-size: clamp(80px, 16vw, 240px);
+      line-height: 0.9;
+      margin-bottom: 24px;
+    }
+    .soon-stage .glitch {
+      position: relative;
+      display: inline-block;
+    }
+    .soon-stage .glitch::before,
+    .soon-stage .glitch::after {
+      content: 'Coming Soon';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      mix-blend-mode: screen;
+    }
+    .soon-stage .glitch::before {
+      color: var(--signal);
+      transform: translate(-2px, 0);
+      clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+      animation: glitch-a 4s infinite steps(2);
+    }
+    .soon-stage .glitch::after {
+      color: var(--warm);
+      transform: translate(2px, 0);
+      clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+      animation: glitch-b 4s infinite steps(2);
+    }
+    @keyframes glitch-a {
+      0%, 92%, 100% { transform: translate(0, 0); opacity: 0; }
+      93%, 97%      { transform: translate(-3px, -1px); opacity: 0.6; }
+    }
+    @keyframes glitch-b {
+      0%, 92%, 100% { transform: translate(0, 0); opacity: 0; }
+      93%, 97%      { transform: translate(3px, 1px); opacity: 0.6; }
+    }
+    .soon-stage .lede {
+      max-width: 560px;
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--silver);
+      margin-bottom: 36px;
+    }
+    .soon-stage .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      color: var(--silver);
+      text-transform: uppercase;
+      background: rgba(10,10,10,0.6);
+      backdrop-filter: blur(8px);
+    }
+    .soon-stage .badge .rec {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--signal); box-shadow: 0 0 6px var(--signal);
+      animation: blink 1.6s infinite;
+    }
+    .soon-stage .back-link {
+      margin-top: 36px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      color: var(--silver);
+      text-transform: uppercase;
+      border-bottom: 1px solid transparent;
+      transition: border-color 200ms cubic-bezier(0.16, 1, 0.3, 1), color 200ms;
+    }
+    .soon-stage .back-link:hover { color: var(--white); border-color: var(--signal); }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a class="home-link" href="Home.html">
+    <span class="glyph">TV</span>
+    <span>Back to home</span>
+  </a>
+  <nav class="nav">
+    <a href="Portfolio.html">Portfolio</a>
+    <a href="About.html">About</a>
+    <a href="Contact.html">Contact</a>
+  </nav>
+  <div class="channel-pill"><span class="rec"></span>CH 04</div>
+</header>
+
+<section class="soon-stage">
+  <canvas id="static-bg"></canvas>
+  <div class="crumbs">
+    <span>TV</span><span class="sep">/</span><span class="here">Channel 04</span>
+  </div>
+  <h1><span class="glitch">Coming Soon</span></h1>
+  <p class="lede">This channel hasn't been programmed yet. Let me know what you'd like here, services, blog, shop, rate card, anything, and I'll wire it up.</p>
+  <span class="badge"><span class="rec"></span>Channel 04 · Awaiting brief</span>
+  <a class="back-link" href="Home.html">← Back to the dial</a>
+</section>
+
+<script>
+  (function () {
+    const canvas = document.getElementById('static-bg');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W = 0, H = 0;
+    const resize = () => {
+      const r = canvas.getBoundingClientRect();
+      W = canvas.width = Math.max(1, Math.floor(r.width * 0.4));
+      H = canvas.height = Math.max(1, Math.floor(r.height * 0.4));
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    function draw() {
+      const img = ctx.createImageData(W, H);
+      const d = img.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const v = (Math.random() * 255) | 0;
+        d[i] = d[i+1] = d[i+2] = v;
+        d[i+3] = 90;
+      }
+      ctx.putImageData(img, 0, 0);
+      requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+</script>
+
+</body>
+</html>

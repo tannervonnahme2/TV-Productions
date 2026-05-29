@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TV Productions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: 'BebasNeue';
+      src: url('fonts/BebasNeue-Regular.ttf') format('truetype');
+      font-weight: 400;
+      font-display: swap;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0A0A0A;
+      --tv-shell-1: #4d4c46;   /* brighter highlight */
+      --tv-shell-2: #232220;   /* mid */
+      --tv-shell-3: #0d0d0c;   /* deep shadow */
+      --tv-bezel:   #0e0e0d;
+      --bezel-chrome: rgba(255, 255, 255, 0.16);
+      --screen-1:   #1a1a17;
+      --screen-2:   #050505;
+      --noise:      #2A2A2A;
+      --silver:     #AFAFAF;
+      --white:      #F0F0EC;
+      --signal:     #FF2D20;
+      --warm:       #FFC940;
+    }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--white); font-family: 'Space Grotesk', sans-serif; -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-decoration: none; }
+    ::selection { background: var(--signal); color: #fff; }
+
+    /* ============================================================
+       PAGE FRAME
+       ============================================================ */
+    .stage {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 0;
+      background: #000;
+    }
+
+    /* page-wide film grain + vignette */
+    .stage::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 30;
+      background:
+        radial-gradient(ellipse 90% 60% at 50% 50%, transparent 30%, rgba(0,0,0,0.55) 100%);
+    }
+    .stage::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 31;
+      opacity: 0.06;
+      mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 220px 220px;
+    }
+
+    /* cross-seam between the four TVs, thin highlight line where they meet */
+    .seam {
+      position: fixed;
+      pointer-events: none;
+      z-index: 15;
+    }
+    .seam.h {
+      top: calc(50% - 1px);
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.10) 8%,
+        rgba(255,255,255,0.18) 38%,
+        rgba(0,0,0,0.6) 50%,
+        rgba(255,255,255,0.18) 62%,
+        rgba(255,255,255,0.10) 92%,
+        transparent 100%);
+    }
+    .seam.v {
+      left: calc(50% - 1px);
+      top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg,
+        transparent 0%,
+        rgba(255,255,255,0.10) 8%,
+        rgba(255,255,255,0.18) 38%,
+        rgba(0,0,0,0.6) 50%,
+        rgba(255,255,255,0.18) 62%,
+        rgba(255,255,255,0.10) 92%,
+        transparent 100%);
+    }
+
+    /* ============================================================
+       CRT TV
+       ============================================================ */
+    .tv {
+      position: relative;
+      display: block;
+      overflow: hidden;
+      background: var(--tv-shell-2);
+      cursor: pointer;
+      isolation: isolate;
+    }
+
+    /* outer plastic shell, warm-silver molded plastic with subtle directional shading */
+    .tv .shell {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 130% 130% at var(--lx, 50%) var(--ly, 50%),
+          var(--tv-shell-1) 0%,
+          var(--tv-shell-2) 55%,
+          var(--tv-shell-3) 100%);
+    }
+
+    /* shell highlight, brighter sheen ball at the outer corner */
+    .tv .sheen {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at var(--sx) var(--sy), rgba(255,255,255,0.14) 0%, transparent 30%),
+        radial-gradient(circle at calc(100% - var(--sx)) calc(100% - var(--sy)), rgba(255, 45, 32, 0.05) 0%, transparent 35%);
+    }
+
+    /* faint vertical panel texture */
+    .tv .shell::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        90deg,
+        rgba(255,255,255,0.018) 0px,
+        rgba(255,255,255,0.018) 1px,
+        transparent 1px,
+        transparent 3px);
+      opacity: 0.8;
+    }
+
+    /* hard top-edge highlight on the plastic, sells the molded shell */
+    .tv .shell::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.10) 0%, transparent 8%),
+        linear-gradient(0deg, rgba(0,0,0,0.35) 0%, transparent 12%);
+      pointer-events: none;
+    }
+
+    /* the recessed bezel surrounding the screen */
+    .tv .bezel {
+      position: absolute;
+      background:
+        radial-gradient(ellipse 130% 100% at 50% 0%, #1c1c1a 0%, var(--tv-bezel) 60%);
+      border-radius: 20px;
+      box-shadow:
+        0 0 0 1px var(--bezel-chrome),
+        0 2px 0 0 rgba(255,255,255,0.06),
+        0 -1px 0 0 rgba(0,0,0,0.6),
+        inset 0 0 0 1px rgba(0,0,0,0.7),
+        inset 0 3px 8px rgba(0,0,0,0.9),
+        inset 0 -2px 4px rgba(0,0,0,0.6),
+        0 6px 24px rgba(0,0,0,0.7);
+    }
+
+    /* inner chrome ring just inside the bezel */
+    .tv .bezel::after {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        inset 0 -1px 0 rgba(0,0,0,0.6);
+      pointer-events: none;
+    }
+
+    /* the actual screen face */
+    .tv .screen {
+      position: absolute;
+      inset: 14px;
+      border-radius: 12px;
+      background:
+        radial-gradient(ellipse 110% 130% at 50% 40%, var(--screen-1) 0%, var(--screen-2) 75%);
+      overflow: hidden;
+      box-shadow:
+        inset 0 0 60px rgba(0,0,0,0.95),
+        inset 0 0 6px rgba(255,255,255,0.05),
+        inset 0 0 30px rgba(255, 230, 200, 0.04),
+        0 0 0 1px rgba(255,255,255,0.05);
+    }
+
+    /* curved glass highlight */
+    .tv .screen::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(155deg,
+          rgba(255,255,255,0.05) 0%,
+          rgba(255,255,255,0.02) 18%,
+          transparent 35%,
+          transparent 65%,
+          rgba(255,255,255,0.015) 90%);
+      z-index: 5;
+    }
+
+    /* CRT scanlines */
+    .tv .screen::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,0.18) 0px,
+        rgba(0,0,0,0.18) 1px,
+        transparent 1px,
+        transparent 3px);
+      opacity: 0.55;
+      z-index: 6;
+    }
+
+    /* light TV static, sits between screen bg and labels; fades on hover */
+    .tv .static {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.14;
+      mix-blend-mode: screen;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1   0 0 0 0 1   0 0 0 0 1   0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+      animation: static-shift 0.16s steps(2) infinite;
+    }
+    .tv:hover .static { opacity: 0.05; }
+    @keyframes static-shift {
+      0%   { background-position: 0 0; }
+      25%  { background-position: -40px 20px; }
+      50%  { background-position: 30px -30px; }
+      75%  { background-position: 20px 40px; }
+      100% { background-position: -20px 10px; }
+    }
+
+    /* VCR-style panel: matte black chrome with a darker recessed tape-deck on top */
+    .tv .chin {
+      position: absolute;
+      background:
+        linear-gradient(180deg, #161616 0%, #0c0c0c 50%, #0a0a0a 100%);
+      border-radius: 3px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 0;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.07),
+        inset 0 -1px 0 rgba(0,0,0,0.8),
+        inset 0 0 0 1px rgba(255,255,255,0.02),
+        0 1px 0 rgba(255,255,255,0.04);
+      overflow: hidden;
+    }
+
+    /* tape deck section at top of chin (holds the slot) */
+    .tv .chin .deck {
+      position: relative;
+      flex: 0 0 54%;
+      background:
+        linear-gradient(180deg, #0c0c0c 0%, #060606 50%, #0c0c0c 100%);
+      border-bottom: 1px solid rgba(0,0,0,0.85);
+      box-shadow:
+        inset 0 -1px 0 rgba(255,255,255,0.05),
+        inset 0 1px 1px rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 7%;
+    }
+
+    /* the cassette slot, a wide horizontal recess sized for a VHS */
+    .tv .chin .slot {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #000 0%, #030303 50%, #000 100%);
+      border-radius: 1.5px;
+      box-shadow:
+        inset 0 3px 5px rgba(0,0,0,1),
+        inset 0 -1px 0 rgba(255,255,255,0.04),
+        inset 1px 0 1px rgba(0,0,0,0.9),
+        inset -1px 0 1px rgba(0,0,0,0.9),
+        0 1px 0 rgba(255,255,255,0.06);
+      overflow: hidden;
+      transition: box-shadow 400ms ease;
+    }
+    .tv:hover .chin .slot {
+      box-shadow:
+        inset 0 3px 5px rgba(0,0,0,1),
+        inset 0 -1px 0 rgba(255,255,255,0.04),
+        inset 1px 0 1px rgba(0,0,0,0.9),
+        inset -1px 0 1px rgba(0,0,0,0.9),
+        inset 0 0 8px rgba(255, 45, 32, 0.35),
+        0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    /* cassette tape inside the slot - slides up on hover */
+    .tv .chin .slot .cassette {
+      position: absolute;
+      left: 0; right: 0; top: 0; bottom: 0;
+      transform: translateY(110%);
+      transition: transform 750ms cubic-bezier(0.5, 0.05, 0.2, 1);
+      background:
+        linear-gradient(180deg, #2c2c2c 0%, #1a1a1a 45%, #0a0a0a 100%);
+      border-top: 1px solid rgba(255,255,255,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 6%;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        inset 0 -2px 3px rgba(0,0,0,0.7),
+        0 -3px 8px rgba(0,0,0,0.5);
+    }
+    /* cassette slide-in on hover removed per request */
+
+    /* white printed label on the cassette face */
+    .cassette .tape-label {
+      background: linear-gradient(180deg, #f6f4ef 0%, #e4e1da 100%);
+      color: #0a0a0a;
+      font-family: 'Space Mono', monospace;
+      font-size: 8.5px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 700;
+      padding: 2px 10px;
+      text-align: center;
+      border-radius: 1px;
+      box-shadow:
+        0 1px 2px rgba(0,0,0,0.5),
+        inset 0 -1px 0 rgba(0,0,0,0.06);
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    /* controls row below the deck */
+    .tv .chin .controls {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 12px;
+      background:
+        linear-gradient(180deg, #161616 0%, #0c0c0c 100%);
+    }
+
+    /* row of tactile buttons - POWER + transport */
+    .tv .chin .btns {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tv .chin .btn {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 25%, #3a3a3a 0%, #1a1a1a 55%, #050505 100%);
+      box-shadow:
+        inset 0 -1px 1px rgba(0,0,0,0.8),
+        inset 0 1px 1px rgba(255,255,255,0.08),
+        0 1px 1px rgba(0,0,0,0.6);
+      flex-shrink: 0;
+    }
+    .tv .chin .btn.pwr {
+      background: radial-gradient(circle at 30% 25%, #4a4a4a 0%, #1a1a1a 55%, #050505 100%);
+      position: relative;
+    }
+    .tv .chin .btn.pwr::after {
+      content: '';
+      position: absolute;
+      inset: 2.5px;
+      border-radius: 50%;
+      border: 0.5px solid rgba(255,255,255,0.15);
+    }
+
+    /* RCA jacks - small recessed dark circles */
+    .tv .chin .jacks {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .tv .chin .jack {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, #000 0%, #000 45%, #1a1a1a 55%, #2a2a2a 100%);
+      box-shadow:
+        inset 0 0 1px rgba(0,0,0,0.9),
+        0 0 0 0.5px rgba(255,255,255,0.06);
+    }
+
+    /* tiny printed labels (VHS / VIDEO / etc) */
+    .tv .chin .label {
+      font-family: 'Space Mono', monospace;
+      font-size: 5px;
+      letter-spacing: 0.15em;
+      color: rgba(180,180,180,0.35);
+      text-transform: uppercase;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    /* speaker grille - thin vertical slits */
+    .tv .chin .grille {
+      margin-left: auto;
+      height: 60%;
+      flex: 0 0 auto;
+      width: 38px;
+      background-image: repeating-linear-gradient(
+        90deg,
+        rgba(0,0,0,0.85) 0px,
+        rgba(0,0,0,0.85) 1px,
+        rgba(255,255,255,0.05) 1px,
+        rgba(255,255,255,0.05) 2.5px);
+      border-radius: 1.5px;
+      box-shadow: inset 0 0 2px rgba(0,0,0,0.9);
+    }
+
+    /* indicator LED */
+    .tv .chin .led {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 4px var(--signal), 0 0 1px var(--signal);
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       SCREEN CONTENT (label + hover media)
+       ============================================================ */
+    .screen-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: var(--align-x, center);
+      justify-content: var(--align-y, center);
+      padding: 8% 10%;
+      z-index: 3;
+      transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .label-stack {
+      position: relative;
+      z-index: 3;
+      text-align: center;
+      transition: opacity 350ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .label-stack .num,
+    .label-stack .meta {
+      transition: opacity 350ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .label-stack .num {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      color: var(--silver);
+      opacity: 0.55;
+      margin-bottom: 14px;
+      display: block;
+    }
+    .label-stack .word {
+      font-family: 'BebasNeue', sans-serif;
+      letter-spacing: 0.06em;
+      font-size: clamp(40px, 4.4vw, 76px);
+      line-height: 0.95;
+      color: var(--white);
+      text-shadow:
+        0 0 1px rgba(240,240,236,0.4),
+        0 0 18px rgba(240,240,236,0.18),
+        0 0 36px rgba(255, 45, 32, 0.12);
+    }
+    .label-stack .meta {
+      margin-top: 18px;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--silver);
+      opacity: 0.6;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .label-stack .meta::before {
+      content: '';
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--signal); box-shadow: 0 0 6px var(--signal);
+    }
+
+    /* the placeholder media that appears on hover */
+    .hover-media {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 350ms cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 2;
+    }
+
+    /* the corner badge on each screen, TR by default, repositioned per-tv */
+    .corner-badge {
+      position: absolute;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--silver);
+      opacity: 0.45;
+      z-index: 4;
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .corner-badge .rec {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 8px var(--signal);
+      animation: blink 1.6s infinite;
+    }
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0.25; }
+    }
+
+    /* (legacy slot/cassette CSS removed - now lives inside .chin .deck) */
+
+    /* ============================================================
+       PER-QUADRANT POSITIONING, TVs symmetric within each quadrant
+       Chin stays at the bottom of every TV. Screens & labels centered.
+       ============================================================ */
+    .tv .bezel  { top: 10%; left: 10%; right: 10%; bottom: 22%; }
+    .tv .chin   { left: 10%; right: 10%; bottom: 5%; height: 17%; }
+    .tv .screen-content { padding: 8%; }
+    .tv .corner-badge   { top: 12%; right: 16%; }
+
+    /* per-quadrant subtle light direction only, geometry stays symmetric */
+    .tv.tl { --lx: 0%;   --ly: 0%;   --sx: 8%;  --sy: 8%; }
+    .tv.tr { --lx: 100%; --ly: 0%;   --sx: 92%; --sy: 8%; }
+    .tv.bl { --lx: 0%;   --ly: 100%; --sx: 8%;  --sy: 92%; }
+    .tv.br { --lx: 100%; --ly: 100%; --sx: 92%; --sy: 92%; }
+
+    /* ============================================================
+       HOVER STATES
+       ============================================================ */
+    .tv:hover .hover-media   { opacity: 1; }
+    .tv:hover .label-stack   { transform: scale(0.55); }
+    .tv:hover .label-stack .num,
+    .tv:hover .label-stack .meta { opacity: 0; }
+    .tv:hover .placeholder-title { opacity: 0; }
+    .tv:hover .screen        { box-shadow:
+        inset 0 0 60px rgba(0,0,0,0.95),
+        inset 0 0 30px rgba(255, 45, 32, 0.12);
+    }
+    .tv:hover .shell         { filter: brightness(1.08); }
+
+    /* press */
+    .tv:active .screen-content { transform: scale(0.985); }
+
+    /* ============================================================
+       HOVER MEDIA (placeholders, to be swapped for real video later)
+       ============================================================ */
+    .placeholder-tag {
+      position: absolute;
+      bottom: 16px; left: 16px;
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--silver);
+      opacity: 0.5;
+      z-index: 7;
+    }
+    .placeholder-title {
+      position: absolute;
+      top: 16px; left: 16px;
+      font-family: 'BebasNeue', sans-serif;
+      letter-spacing: 0.12em;
+      font-size: 22px;
+      color: var(--white);
+      z-index: 7;
+      transition: opacity 350ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Portfolio, film-strip mosaic */
+    .media-portfolio {
+      background:
+        linear-gradient(135deg, #2a1410 0%, #0a0a0a 60%),
+        #0a0a0a;
+    }
+    .hover-media .reel-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+      background: #000;
+    }    .media-portfolio .strip {
+      position: absolute;
+      inset: 22% 10%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 6px;
+    }
+    .media-portfolio .strip > div {
+      background: linear-gradient(135deg, #333, #111);
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+      animation: tile-shift 6s infinite;
+    }
+    .media-portfolio .strip > div:nth-child(1) { background: linear-gradient(135deg, #FF2D20, #8B0F0A); animation-delay: 0s; }
+    .media-portfolio .strip > div:nth-child(2) { background: linear-gradient(135deg, #FFC940, #6e4500); animation-delay: 0.4s; }
+    .media-portfolio .strip > div:nth-child(3) { background: linear-gradient(135deg, #2A2A2A, #0a0a0a); animation-delay: 0.8s; }
+    .media-portfolio .strip > div:nth-child(4) { background: linear-gradient(135deg, #F0F0EC, #6B6B6B); animation-delay: 1.2s; }
+    .media-portfolio .strip > div:nth-child(5) { background: linear-gradient(135deg, #FF2D20, #1E1E1E); animation-delay: 1.6s; }
+    .media-portfolio .strip > div:nth-child(6) { background: linear-gradient(135deg, #1E1E1E, #2A2A2A); animation-delay: 2s; }
+    .media-portfolio .strip > div::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.6));
+    }
+    @keyframes tile-shift {
+      0%, 100% { transform: translateY(0); opacity: 0.95; }
+      50%      { transform: translateY(-3px); opacity: 0.7; }
+    }
+
+    /* Contact, pulsing signal grid */
+    .media-contact { background: radial-gradient(ellipse at center, #14140a 0%, #050505 75%); }
+    .media-contact .pulse {
+      position: absolute;
+      inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .media-contact .pulse .ring {
+      position: absolute;
+      border: 1px solid rgba(255, 230, 0, 0.5);
+      border-radius: 50%;
+      animation: ringpulse 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    }
+    .media-contact .pulse .ring:nth-child(2) { animation-delay: 0.6s; }
+    .media-contact .pulse .ring:nth-child(3) { animation-delay: 1.2s; }
+    @keyframes ringpulse {
+      0%   { width: 30px; height: 30px; opacity: 0.9; }
+      100% { width: 240px; height: 240px; opacity: 0; }
+    }
+    .media-contact .pulse .core {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #FFE600;
+      box-shadow: 0 0 24px #FFE600, 0 0 60px rgba(255, 230, 0, 0.4);
+      z-index: 2;
+    }
+
+    /* About, VHS-style scrolling subtitle */
+    .media-about { background: linear-gradient(180deg, #0a0a0a 0%, #14140d 100%); }
+    .media-about .scanlines {
+      position: absolute; inset: 0;
+      background-image: repeating-linear-gradient(
+        0deg,
+        rgba(255,255,255,0.04) 0px,
+        rgba(255,255,255,0.04) 1px,
+        transparent 1px,
+        transparent 4px);
+    }
+    .media-about .silhouette {
+      position: absolute;
+      left: 50%; bottom: 0;
+      width: 140px; height: 180px;
+      transform: translateX(-50%);
+      background:
+        radial-gradient(ellipse 35% 30% at 50% 22%, #2a2a2a 0%, transparent 70%),
+        radial-gradient(ellipse 60% 55% at 50% 80%, #1a1a1a 0%, transparent 75%);
+      filter: blur(2px);
+      opacity: 0.7;
+    }
+    .media-about .subtitle {
+      position: absolute;
+      left: 50%; bottom: 28%;
+      transform: translateX(-50%);
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      color: var(--warm);
+      text-transform: uppercase;
+      white-space: nowrap;
+      text-shadow: 0 0 8px rgba(255, 201, 64, 0.4);
+    }
+
+    /* Services, animated EQ / waveform bars */
+    .media-services { background: radial-gradient(ellipse at center, #1a1a14 0%, #050505 75%); }
+    .media-services .bars {
+      position: absolute;
+      inset: 22% 14%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+    .media-services .bars span {
+      flex: 1;
+      background: linear-gradient(180deg, var(--signal) 0%, var(--warm) 60%, rgba(255, 201, 64, 0.3) 100%);
+      border-radius: 1px;
+      transform-origin: center;
+      animation: eq 1.4s cubic-bezier(0.16, 1, 0.3, 1) infinite alternate;
+      box-shadow: 0 0 12px rgba(255, 45, 32, 0.35);
+      height: 100%;
+    }
+    .media-services .bars span:nth-child(1)  { animation-delay: -0.1s;  transform: scaleY(0.35); }
+    .media-services .bars span:nth-child(2)  { animation-delay: -0.3s;  transform: scaleY(0.7);  }
+    .media-services .bars span:nth-child(3)  { animation-delay: -0.5s;  transform: scaleY(0.5);  }
+    .media-services .bars span:nth-child(4)  { animation-delay: -0.2s;  transform: scaleY(0.9);  }
+    .media-services .bars span:nth-child(5)  { animation-delay: -0.7s;  transform: scaleY(0.4);  }
+    .media-services .bars span:nth-child(6)  { animation-delay: -0.4s;  transform: scaleY(0.85); }
+    .media-services .bars span:nth-child(7)  { animation-delay: -0.9s;  transform: scaleY(0.55); }
+    .media-services .bars span:nth-child(8)  { animation-delay: -0.6s;  transform: scaleY(0.75); }
+    .media-services .bars span:nth-child(9)  { animation-delay: -0.15s; transform: scaleY(0.45); }
+    .media-services .bars span:nth-child(10) { animation-delay: -0.8s;  transform: scaleY(0.65); }
+    .media-services .bars span:nth-child(11) { animation-delay: -0.35s; transform: scaleY(0.5);  }
+    .media-services .bars span:nth-child(12) { animation-delay: -0.55s; transform: scaleY(0.8);  }
+    @keyframes eq {
+      0%   { transform: scaleY(0.25); opacity: 0.7; }
+      100% { transform: scaleY(1);    opacity: 1;   }
+    }
+
+    /* ============================================================
+       CENTER LOGO MOUNT
+       ============================================================ */
+    .logo-mount {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 480px;
+      height: 480px;
+      z-index: 20;
+      pointer-events: none;
+    }
+    .logo-mount canvas { display: block; }
+
+    /* (dark disc removed, logo sits directly over the seam crossing) */
+
+    /* ============================================================
+       CORNER CHROME (brand mark + status)
+       ============================================================ */
+    .chrome {
+      position: fixed;
+      z-index: 40;
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.22em;
+      color: var(--silver);
+      opacity: 0.7;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+    .chrome.tl { top: 24px; left: 26px; display: flex; align-items: center; gap: 10px; }
+    .chrome.tl .live {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 8px var(--signal);
+      animation: blink 1.6s infinite;
+    }
+    .chrome.tr { top: 24px; right: 26px; }
+    .chrome.bl { bottom: 24px; left: 26px; }
+    .chrome.br { bottom: 24px; right: 26px; }
+
+    /* responsive, collapse to vertical stack on narrow screens */
+    @media (max-width: 720px) {
+      .stage { grid-template-columns: 1fr; grid-template-rows: repeat(4, 1fr); }
+      .logo-mount { width: 280px; height: 280px; }
+      .label-stack .word { font-size: clamp(48px, 14vw, 80px); }
+      .tv .bezel { top: 6%; bottom: 12%; left: 8%; right: 8%; }
+      .tv .chin  { left: 10%; right: 10%; bottom: 4%; height: 14%; }
+      .tv .screen-content { padding: 8% !important; --align-x: center; --align-y: center; }
+      .chrome { font-size: 9px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="stage">
+  <a class="tv tl" href="Portfolio.html" aria-label="Portfolio">
+    <div class="shell"></div>
+    <div class="sheen"></div>
+    <div class="bezel"></div>
+    <div class="screen">
+      <div class="static"></div>
+      <div class="hover-media media-portfolio">
+        <video class="reel-video" muted loop playsinline preload="auto"
+               src="uploads/TV Reel 2026 Low Res.mp4"></video>
+        <div class="placeholder-title">PORTFOLIO</div>
+        <div class="placeholder-tag">REEL · 2026</div>
+      </div>
+      <div class="screen-content">
+        <div class="label-stack">
+          <span class="num">CH 01</span>
+          <div class="word">Portfolio</div>
+          <span class="meta">SELECTED WORK</span>
+        </div>
+      </div>
+    </div>
+    <div class="chin">
+      <div class="deck">
+        <div class="slot">
+          <div class="cassette">
+            <div class="tape-label">Portfolio</div>
+          </div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="btns">
+          <span class="btn pwr"></span>
+          <span class="btn"></span>
+          <span class="btn"></span>
+          <span class="btn"></span>
+          <span class="btn"></span>
+        </div>
+        <span class="led"></span>
+        <div class="jacks">
+          <span class="jack"></span>
+          <span class="jack"></span>
+        </div>
+        <span class="label">VHS</span>
+        <div class="grille"></div>
+      </div>
+    </div>
+    <div class="corner-badge"><span class="rec"></span>CH 01</div>
+  </a>
+
+  <a class="tv tr" href="Services.html" aria-label="Services">
+    <div class="shell"></div>
+    <div class="sheen"></div>
+    <div class="bezel"></div>
+    <div class="screen">
+      <div class="static"></div>
+      <div class="hover-media media-services">
+        <video class="reel-video" muted loop playsinline preload="auto"
+               src="uploads/BTS Footage for Website.mp4"></video>
+        <div class="placeholder-title">SERVICES</div>
+        <div class="placeholder-tag">BTS · ON SET</div>
+      </div>
+      <div class="screen-content">
+        <div class="label-stack">
+          <span class="num">CH 02</span>
+          <div class="word">Services</div>
+          <span class="meta">WHAT WE MAKE</span>
+        </div>
+      </div>
+    </div>
+    <div class="chin">
+      <div class="deck">
+        <div class="slot">
+          <div class="cassette">
+            <div class="tape-label">Services</div>
+          </div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="btns">
+          <span class="btn pwr"></span>
+          <span class="btn"></span>
+          <span class="btn"></span>
+          <span class="btn"></span>
+          <span class="btn"></span>
+        </div>
+        <span class="led"></span>
+        <div class="jacks">
+          <span class="jack"></span>
+          <span class="jack"></span>
+        </div>
+        <span class="label">VHS</span>
+        <div class="grille"></div>
+      </div>
+    </div>
+    <div class="corner-badge"><span class="rec"></span>CH 02</div>
+  </a>
+
+  <a class="tv bl" href="About.html" aria-label="About">
+    <div class="shell"></div>
+    <div class="sheen"></div>
+    <div class="bezel"></div>
+    <div class="screen">
+      <div class="static"></div>
+      <div class="hover-media media-about">
+        <video class="reel-video" muted loop playsinline preload="auto"
+               src="uploads/ABOUT Page Edit.mp4"></video>
+        <div class="placeholder-title">ABOUT</div>
+        <div class="placeholder-tag">EST. BY TANNER VONNAHME</div>
+      </div>
+      <div class="screen-content">
+        <div class="label-stack">
+          <span class="num">CH 03</span>
+          <div class="word">About</div>
+          <span class="meta">WHO WE ARE</span>
+        </div>
+      </div>
+    </div>
+    <div class="chin">
+      <div class="deck">
+        <div class="slot">
+          <div class="cassette">
+            <div class="tape-label">About</div>
+          </div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="btns">
+          <span class="btn pwr"></span>
+          <span class="btn"></span>
+          <span class="btn"></span>
+          <span class="btn"></span>
+          <span class="btn"></span>
+        </div>
+        <span class="led"></span>
+        <div class="jacks">
+          <span class="jack"></span>
+          <span class="jack"></span>
+        </div>
+        <span class="label">VHS</span>
+        <div class="grille"></div>
+      </div>
+    </div>
+    <div class="corner-badge"><span class="rec"></span>CH 03</div>
+  </a>
+
+  <a class="tv br" href="Contact.html" aria-label="Contact">
+    <div class="shell"></div>
+    <div class="sheen"></div>
+    <div class="bezel"></div>
+    <div class="screen">
+      <div class="static"></div>
+      <div class="hover-media media-contact">
+        <div class="placeholder-title">CONTACT</div>
+        <div class="pulse">
+          <div class="ring"></div>
+          <div class="ring"></div>
+          <div class="ring"></div>
+          <div class="core"></div>
+        </div>
+        <div class="placeholder-tag">PLACEHOLDER · SIGNAL.MOV</div>
+      </div>
+      <div class="screen-content">
+        <div class="label-stack">
+          <span class="num">CH 04</span>
+          <div class="word">Contact</div>
+          <span class="meta">START A PROJECT</span>
+        </div>
+      </div>
+    </div>
+    <div class="chin">
+      <div class="deck">
+        <div class="slot">
+          <div class="cassette">
+            <div class="tape-label">Contact</div>
+          </div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="btns">
+          <span class="btn pwr"></span>
+          <span class="btn"></span>
+          <span class="btn"></span>
+          <span class="btn"></span>
+          <span class="btn"></span>
+        </div>
+        <span class="led"></span>
+        <div class="jacks">
+          <span class="jack"></span>
+          <span class="jack"></span>
+        </div>
+        <span class="label">VHS</span>
+        <div class="grille"></div>
+      </div>
+    </div>
+    <div class="corner-badge"><span class="rec"></span>CH 04</div>
+  </a>
+</div>
+
+<div class="logo-mount" id="mount"></div>
+
+<div class="chrome tl"><span class="live"></span>ON AIR</div>
+<div class="chrome tr">TV PRODUCTIONS</div>
+<div class="chrome bl">EST. TANNER VONNAHME</div>
+<div class="chrome br">SELECT A CHANNEL</div>
+
+<div class="seam h"></div>
+<div class="seam v"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<!-- ============================================================
+     SPINNING 3D LOGO (center)
+     ============================================================ -->
+<script>
+(function () {
+  function rrPath(ctx, x, y, w, h, r) {
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+  }
+
+  const mount = document.getElementById('mount');
+  let W = mount.clientWidth;
+  let H = mount.clientHeight;
+
+  const scene = new THREE.Scene();
+
+  const camera = new THREE.PerspectiveCamera(35, W / H, 0.1, 100);
+  camera.position.set(0, 0, 10.5);
+  camera.lookAt(0, 0, 0);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(W, H);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.physicallyCorrectLights = true;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.setClearColor(0x000000, 0);
+  mount.appendChild(renderer.domElement);
+
+  const mat = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff,
+    roughness: 0.42,
+    metalness: 0.05,
+    clearcoat: 0.4,
+    clearcoatRoughness: 0.3,
+  });
+
+  const EXT = { depth: 0.55, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.04, bevelSegments: 3 };
+  const geos = [];
+  function extrudeMesh(shape) {
+    const geo = new THREE.ExtrudeGeometry(shape, EXT);
+    geos.push(geo);
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.z = -EXT.depth / 2;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    return mesh;
+  }
+
+  const group = new THREE.Group();
+
+  /* TV frame */
+  const TW = 4, TH = 3, STROKE = 0.30, R_OUT = 0.38, R_IN = 0.20;
+  const frameShape = new THREE.Shape();
+  rrPath(frameShape, -TW / 2, -TH / 2, TW, TH, R_OUT);
+  const hole = new THREE.Path();
+  rrPath(hole, -(TW / 2 - STROKE), -(TH / 2 - STROKE), TW - STROKE * 2, TH - STROKE * 2, R_IN);
+  frameShape.holes.push(hole);
+  group.add(extrudeMesh(frameShape));
+
+  /* Antennae */
+  const ANT_BASE_X = 0.18, ANT_BASE_Y = TH / 2;
+  const ANT_TIP_X = 1.05, ANT_TIP_Y = 2.85;
+  const ANT_DX = ANT_TIP_X - ANT_BASE_X, ANT_DY = ANT_TIP_Y - ANT_BASE_Y;
+  const ANT_LEN = Math.sqrt(ANT_DX * ANT_DX + ANT_DY * ANT_DY);
+  const ANT_ANGLE = Math.atan2(ANT_DX, ANT_DY);
+  const ANT_MID_X = (ANT_BASE_X + ANT_TIP_X) / 2, ANT_MID_Y = (ANT_BASE_Y + ANT_TIP_Y) / 2;
+  const ANT_R = 0.058;
+  function makeAntenna(signX) {
+    const cylGeo = new THREE.CylinderGeometry(ANT_R, ANT_R, ANT_LEN, 14);
+    const capGeo = new THREE.SphereGeometry(ANT_R, 10, 6);
+    geos.push(cylGeo, capGeo);
+    const cyl = new THREE.Mesh(cylGeo, mat);
+    const capT = new THREE.Mesh(capGeo, mat);
+    const capB = new THREE.Mesh(capGeo, mat);
+    capT.position.y = ANT_LEN / 2;
+    capB.position.y = -ANT_LEN / 2;
+    [cyl, capT, capB].forEach(m => { m.castShadow = true; m.receiveShadow = true; });
+    const ant = new THREE.Group();
+    ant.add(cyl, capT, capB);
+    ant.position.set(signX * ANT_MID_X, ANT_MID_Y, 0);
+    ant.rotation.z = -signX * ANT_ANGLE;
+    return ant;
+  }
+  group.add(makeAntenna(-1));
+  group.add(makeAntenna(1));
+
+  /* T */
+  const tShape = new THREE.Shape();
+  const TLW = 0.73, TBH = 0.155, TSW = 0.088, TAH = 0.42;
+  tShape.moveTo(-TLW, TAH); tShape.lineTo(TLW, TAH); tShape.lineTo(TLW, TAH - TBH);
+  tShape.lineTo(TSW, TAH - TBH); tShape.lineTo(TSW, -TAH); tShape.lineTo(-TSW, -TAH);
+  tShape.lineTo(-TSW, TAH - TBH); tShape.lineTo(-TLW, TAH - TBH); tShape.closePath();
+  const tMesh = extrudeMesh(tShape); tMesh.position.x = -0.58; group.add(tMesh);
+
+  /* V */
+  const vShape = new THREE.Shape();
+  const VOW = 0.73, VIW = 0.50, VTY = 0.42, VOB = -0.45, VIB = -0.29;
+  vShape.moveTo(-VOW, VTY); vShape.lineTo(-VIW, VTY); vShape.lineTo(0, VIB);
+  vShape.lineTo(VIW, VTY); vShape.lineTo(VOW, VTY); vShape.lineTo(0, VOB); vShape.closePath();
+  const vMesh = extrudeMesh(vShape); vMesh.position.x = 0.58; group.add(vMesh);
+
+  /* Center vertically */
+  const logoTop = ANT_TIP_Y, logoBot = -TH / 2;
+  group.position.y = -(logoTop + logoBot) / 2;
+  /* slightly smaller to read against busy background */
+  group.scale.setScalar(0.78);
+
+  scene.add(group);
+
+  /* Lighting */
+  scene.add(new THREE.AmbientLight(0xffffff, 0.22));
+  scene.add(new THREE.HemisphereLight(0xfffaf5, 0x3a4458, 0.4));
+  const key = new THREE.DirectionalLight(0xfffaf0, 3.0);
+  key.position.set(4, 6, 5);
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.camera.near = 0.5; key.shadow.camera.far = 30;
+  key.shadow.camera.left = -5; key.shadow.camera.right = 5;
+  key.shadow.camera.top = 5; key.shadow.camera.bottom = -5;
+  key.shadow.bias = -0.0005; key.shadow.normalBias = 0.02; key.shadow.radius = 4;
+  scene.add(key);
+  const fill = new THREE.DirectionalLight(0xb8d4ff, 0.7);
+  fill.position.set(-5, -2, 4); scene.add(fill);
+  const rim = new THREE.DirectionalLight(0xffffff, 1.8);
+  rim.position.set(-2, 3, -6); scene.add(rim);
+  const accent = new THREE.PointLight(0xff2d20, 10, 8, 2);
+  accent.position.set(0, -2.5, 3); scene.add(accent);
+
+  /* Animation */
+  const clock = new THREE.Clock();
+  function animate() {
+    requestAnimationFrame(animate);
+    const delta = clock.getDelta();
+    const elapsed = clock.getElapsedTime();
+    group.rotation.y += delta * (Math.PI * 2 / 10);
+    group.rotation.x = Math.sin(elapsed * Math.PI * 2 / 6) * (4 * Math.PI / 180);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  function onResize() {
+    W = mount.clientWidth; H = mount.clientHeight;
+    camera.aspect = W / H;
+    camera.updateProjectionMatrix();
+    renderer.setSize(W, H);
+  }
+  window.addEventListener('resize', onResize);
+})();
+</script>
+
+<script>
+(function () {
+  document.querySelectorAll('.tv').forEach(function (tv) {
+    var video = tv.querySelector('.reel-video');
+    if (!video) return;
+    tv.addEventListener('mouseenter', function () {
+      var p = video.play();
+      if (p && p.catch) p.catch(function(){});
+    });
+    tv.addEventListener('mouseleave', function () {
+      video.pause();
+      video.currentTime = 0;
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
