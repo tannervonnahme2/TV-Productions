@@ -333,7 +333,8 @@
         inset 0 -2px 3px rgba(0,0,0,0.7),
         0 -3px 8px rgba(0,0,0,0.5);
     }
-    /* cassette slide-in on hover removed per request */
+    /* slot stays empty — no tape inserted on any screen size */
+    .tv .chin .slot .cassette { display: none; }
 
     /* white printed label on the cassette face */
     .cassette .tape-label {
@@ -646,6 +647,21 @@
 
     /* Contact, pulsing signal grid */
     .media-contact { background: radial-gradient(ellipse at center, #14140a 0%, #050505 75%); }
+
+    /* DVD-screensaver bouncing logo inside the Contact monitor */
+    .media-contact .dvd-logo {
+      position: absolute;
+      top: 0; left: 0;
+      width: 27%;
+      aspect-ratio: 1 / 1;
+      background-color: var(--white, #F0F0EC);
+      -webkit-mask: url('uploads/TV Logo-6fa1c0c0.png') center / contain no-repeat;
+              mask: url('uploads/TV Logo-6fa1c0c0.png') center / contain no-repeat;
+      z-index: 3;
+      pointer-events: none;
+      will-change: transform;
+      filter: drop-shadow(0 3px 8px rgba(0,0,0,0.55));
+    }
     .media-contact .pulse {
       position: absolute;
       inset: 0;
@@ -784,13 +800,29 @@
 
     /* responsive, collapse to vertical stack on narrow screens */
     @media (max-width: 720px) {
-      .stage { grid-template-columns: 1fr; grid-template-rows: repeat(4, 1fr); }
-      .logo-mount { width: 280px; height: 280px; }
-      .label-stack .word { font-size: clamp(48px, 14vw, 80px); }
-      .tv .bezel { top: 6%; bottom: 12%; left: 8%; right: 8%; }
-      .tv .chin  { left: 10%; right: 10%; bottom: 4%; height: 14%; }
-      .tv .screen-content { padding: 8% !important; --align-x: center; --align-y: center; }
-      .chrome { font-size: 9px; }
+      /* let the page scroll instead of cramming 4 TVs into one screen */
+      html, body { overflow-y: auto; overflow-x: hidden; height: auto; }
+      .stage {
+        position: relative;
+        inset: auto;
+        height: auto;
+        min-height: 100vh;
+        grid-template-columns: 1fr;
+        grid-template-rows: none;
+        grid-auto-rows: minmax(64vh, auto);
+        gap: 30px;
+        padding: 26px 22px 40px;
+      }
+      /* 2x2-only framing pieces don't belong in a vertical stack */
+      .stage::before { display: none; }
+      .seam { display: none; }
+      .logo-mount { display: none; }
+      .chrome { display: none; }
+
+      .label-stack .word { font-size: clamp(44px, 13vw, 72px); }
+      .tv .bezel { top: 5%; bottom: 13%; left: 6%; right: 6%; }
+      .tv .chin  { left: 7%; right: 7%; bottom: 5%; height: 15%; }
+      .tv .screen-content { padding: 10% !important; --align-x: center; --align-y: center; }
     }
   </style>
 </head>
@@ -949,13 +981,7 @@
       <div class="static"></div>
       <div class="hover-media media-contact">
         <div class="placeholder-title">CONTACT</div>
-        <div class="pulse">
-          <div class="ring"></div>
-          <div class="ring"></div>
-          <div class="ring"></div>
-          <div class="core"></div>
-        </div>
-        <div class="placeholder-tag">PLACEHOLDER · SIGNAL.MOV</div>
+        <div class="dvd-logo"></div>
       </div>
       <div class="screen-content">
         <div class="label-stack">
@@ -1180,6 +1206,55 @@
       video.currentTime = 0;
     });
   });
+
+  // ── DVD-screensaver bounce inside the Contact monitor ──
+  (function () {
+    var tv = document.querySelector('.tv.br');
+    if (!tv) return;
+    var stage = tv.querySelector('.media-contact');
+    var logo = stage && stage.querySelector('.dvd-logo');
+    if (!stage || !logo) return;
+
+    var SPEED = 0.7;            // slow drift within the small screen
+    var x = 0, y = 0, vx = 0, vy = 0, raf = null, running = false;
+
+    function dims() {
+      return { w: logo.offsetWidth, h: logo.offsetHeight, W: stage.clientWidth, H: stage.clientHeight };
+    }
+    function place() { logo.style.transform = 'translate(' + x + 'px,' + y + 'px)'; }
+    function center() { var d = dims(); x = (d.W - d.w) / 2; y = (d.H - d.h) / 2; }
+
+    function step() {
+      var d = dims();
+      var maxX = d.W - d.w, maxY = d.H - d.h;
+      x += vx; y += vy;
+      var hit = false;
+      if (x <= 0) { x = 0; vx = Math.abs(vx); hit = true; }
+      else if (x >= maxX) { x = maxX; vx = -Math.abs(vx); hit = true; }
+      if (y <= 0) { y = 0; vy = Math.abs(vy); hit = true; }
+      else if (y >= maxY) { y = maxY; vy = -Math.abs(vy); hit = true; }
+      place();
+      raf = requestAnimationFrame(step);
+    }
+
+    function start() {
+      if (running) return;
+      running = true;
+      center();
+      vx = SPEED * (Math.random() < 0.5 ? -1 : 1);
+      vy = SPEED * (Math.random() < 0.5 ? -1 : 1);
+      step();
+    }
+    function stop() {
+      running = false;
+      cancelAnimationFrame(raf);
+      center(); place();
+    }
+
+    tv.addEventListener('mouseenter', start);
+    tv.addEventListener('mouseleave', stop);
+    center(); place();
+  })();
 })();
 </script>
 

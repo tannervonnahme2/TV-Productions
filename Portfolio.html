@@ -32,37 +32,40 @@
       background: linear-gradient(160deg, #1f1f1f 0%, #0a0a0a 100%);
     }
     .work-grid .tile.t1 .ph {
+      inset: 0;
       background:
-        url('https://i.ytimg.com/vi/NnEYboac-9g/hqdefault.jpg') center / contain no-repeat,
-        #000;
+        linear-gradient(to top, #000 0%, #000 30%, rgba(0,0,0,0.85) 38%, rgba(0,0,0,0) 52%),
+        url('uploads/Coast Contra Act.png?v=4') center top / 100% auto no-repeat #000;
     }
     .work-grid .tile.t2 .ph {
       inset: 0;
       background:
-        linear-gradient(180deg, transparent 72.5%, #000 72.5%),
-        url('uploads/Red Bull Thumbnail.png') center top / cover no-repeat #000;
+        linear-gradient(to top, #000 0%, #000 30%, rgba(0,0,0,0.9) 35%, rgba(0,0,0,0) 42%),
+        url('uploads/Red Bull Thumbnail.png?v=3') center bottom / 102% auto no-repeat #000;
     }
     .work-grid .tile.t3 .ph {
+      inset: 0;
       background:
-        url('https://i.ytimg.com/vi/_o0NS70Yfd0/hqdefault.jpg') center / contain no-repeat,
-        #000;
+        linear-gradient(to top, #000 0%, #000 30%, rgba(0,0,0,0.85) 38%, rgba(0,0,0,0) 52%),
+        url('https://i.ytimg.com/vi/_o0NS70Yfd0/maxresdefault.jpg') center 36% / contain no-repeat,
+        #fff;
     }
     .work-grid .tile.t4 .ph {
       inset: 0;
       background:
-        linear-gradient(180deg, transparent 72.5%, #000 72.5%),
+        linear-gradient(to top, #000 0%, #000 30%, rgba(0,0,0,0.85) 38%, rgba(0,0,0,0) 52%),
         url('uploads/Raising Canes.jpg') center 88% / 130% auto no-repeat #000;
     }
     .work-grid .tile.t5 .ph {
       inset: 0;
       background:
-        linear-gradient(180deg, transparent 72.5%, #000 72.5%),
+        linear-gradient(to top, #000 0%, #000 30%, rgba(0,0,0,0.85) 38%, rgba(0,0,0,0) 52%),
         url('uploads/Abbott Elementary.png') center 58% / cover no-repeat #000;
     }
     .work-grid .tile.t6 .ph {
       inset: 0;
       background:
-        linear-gradient(180deg, transparent 72.5%, #000 72.5%),
+        linear-gradient(to top, #000 0%, #000 30%, rgba(0,0,0,0.85) 38%, rgba(0,0,0,0) 52%),
         url('uploads/LA Crew.png') center bottom / cover no-repeat #000;
     }
     .work-grid .tile .ph::after {
@@ -164,6 +167,95 @@
       .page-hero .lede { white-space: normal; font-size: 17px; }
     }
 
+    /* ── 2026 Reel TV (matches Services hero TV) ── */
+    .reel-stage {
+      max-width: 940px;
+      margin: 4px auto 14px;
+      padding: 0 28px;
+    }
+    .reel-tv-bezel {
+      position: relative;
+      padding: 18px;
+      border-radius: 18px;
+      background: radial-gradient(ellipse 130% 100% at 50% 0%, #1c1c1a 0%, #0e0e0d 62%);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06),
+        inset 0 2px 0 rgba(255,255,255,0.05),
+        inset 0 0 0 1px rgba(0,0,0,0.7),
+        0 30px 60px rgba(0,0,0,0.6);
+    }
+    .reel-tv-screen {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #050505;
+      box-shadow:
+        inset 0 0 60px rgba(0,0,0,0.95),
+        inset 0 0 0 1px rgba(255,255,255,0.05);
+    }
+    .reel-tv-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .reel-tv-glass {
+      position: absolute; inset: 0; pointer-events: none; z-index: 3;
+      background: linear-gradient(155deg,
+        rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 18%,
+        transparent 38%, transparent 62%, rgba(255,255,255,0.02) 92%);
+    }
+    .reel-tv-scan {
+      position: absolute; inset: 0; pointer-events: none; z-index: 2;
+      background-image: repeating-linear-gradient(0deg,
+        rgba(0,0,0,0.16) 0px, rgba(0,0,0,0.16) 1px, transparent 1px, transparent 3px);
+      mix-blend-mode: multiply;
+    }
+    .reel-tv-badge {
+      position: absolute; top: 12px; left: 12px; z-index: 4;
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 5px 9px; border-radius: 3px;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
+      font-family: 'Space Mono', monospace; font-size: 9px;
+      letter-spacing: 0.22em; color: var(--silver); text-transform: uppercase;
+    }
+    .reel-tv-badge .rec {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--signal); box-shadow: 0 0 8px var(--signal);
+      animation: reelRec 1.4s ease-in-out infinite;
+    }
+    @keyframes reelRec { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+    .reel-tv-chin {
+      display: flex; align-items: center; gap: 14px;
+      margin-top: 12px; padding: 12px 18px; border-radius: 12px;
+      background: linear-gradient(180deg, #161615 0%, #0c0c0b 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 20px rgba(0,0,0,0.4);
+    }
+    .reel-tv-btns { display: flex; gap: 7px; }
+    .reel-tv-btns .b {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #3a3a37, #141413);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.6);
+    }
+    .reel-tv-btns .b.pwr {
+      background: radial-gradient(circle at 35% 30%, #ff6657, var(--signal));
+      box-shadow: 0 0 8px rgba(255,45,32,0.5);
+    }
+    .reel-tv-led {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #3ddc6e; box-shadow: 0 0 8px rgba(61,220,110,0.7);
+    }
+    .reel-tv-label {
+      margin-left: auto; font-family: 'Space Mono', monospace;
+      font-size: 10px; letter-spacing: 0.22em; color: var(--gray); text-transform: uppercase;
+    }
+    @media (max-width: 600px) {
+      .reel-stage { padding: 0 18px; }
+    }
+
     /* ── Our Partners ── */
     .partners-logos {
       margin-top: 28px;
@@ -201,6 +293,27 @@
   </div>
   <h1>Selected<br/>Work.</h1>
   <p class="lede">A taste of branded, social-first content for our partners that delivered real results.</p>
+</section>
+
+<section class="reel-stage" aria-label="2026 Showreel">
+  <div class="reel-tv">
+    <div class="reel-tv-bezel">
+      <div class="reel-tv-screen">
+        <video class="reel-tv-video" autoplay muted loop playsinline preload="auto"
+               src="uploads/TV Reel 2026 Low Res-f43e363f.mp4"></video>
+        <div class="reel-tv-glass"></div>
+        <div class="reel-tv-scan"></div>
+        <div class="reel-tv-badge"><span class="rec"></span>2026 Reel</div>
+      </div>
+    </div>
+    <div class="reel-tv-chin">
+      <div class="reel-tv-btns">
+        <span class="b pwr"></span><span class="b"></span><span class="b"></span><span class="b"></span>
+      </div>
+      <span class="reel-tv-led"></span>
+      <span class="reel-tv-label">TV Productions · Reel</span>
+    </div>
+  </div>
 </section>
 
 <main class="content">

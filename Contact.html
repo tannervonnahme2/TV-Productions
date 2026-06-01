@@ -65,6 +65,18 @@
     }
     .submit:hover { filter: brightness(1.1); }
     .submit:active { transform: scale(0.98); }
+    .submit[disabled] { opacity: 0.55; cursor: default; filter: none; transform: none; }
+    .form-status {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      line-height: 1.5;
+      margin: 4px 0 0;
+      min-height: 16px;
+    }
+    .form-status.ok { color: #3ddc6e; }
+    .form-status.err { color: var(--signal); }
+    .form-status.pending { color: var(--silver); }
 
     .side-card {
       background: var(--bg-elevated);
@@ -128,7 +140,7 @@
 <main class="content">
   <div class="section" style="border-top: none; padding-top: 16px;">
     <div class="contact-grid">
-      <form class="field-stack" onsubmit="event.preventDefault(); alert('Form placeholder, wire to real submit later.');">
+      <form class="field-stack" onsubmit="sendInquiry(event)">
         <div class="field">
           <label for="name">Name</label>
           <input id="name" type="text" placeholder="Your name" />
@@ -168,6 +180,7 @@
           <textarea id="brief" placeholder="Goals, deliverables, timing, anything that helps us scope."></textarea>
         </div>
         <button class="submit" type="submit">Send signal →</button>
+        <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
       </form>
 
       <aside class="side-card">
@@ -186,6 +199,82 @@
   <div class="mark">TV</div>
   <div>© TV Productions · Tanner Vonnahme</div>
 </footer>
+
+<script>
+  // ── Contact form → silent background submission via Web3Forms ──
+  // SETUP (one-time, ~30 seconds):
+  //   1. Go to https://web3forms.com
+  //   2. Enter tannervonnahme2@gmail.com and click "Create Access Key"
+  //   3. The access key is emailed to that inbox — paste it below, replacing ACCESS_KEY_PLACEHOLDER
+  // Submissions then arrive silently in that inbox. No backend, no account dashboard needed.
+  var WEB3FORMS_ACCESS_KEY = '33e98a92-4e2f-4cc6-8592-6f33b2907666';
+
+  function sendInquiry(e) {
+    e.preventDefault();
+    var form = e.target;
+    var btn = form.querySelector('.submit');
+    var status = document.getElementById('formStatus');
+    var val = function (id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
+    var name = val('name'), email = val('email'), brand = val('brand');
+    var type = val('type'), budget = val('budget'), brief = val('brief');
+
+    if (!name || !email || !brief) {
+      status.className = 'form-status err';
+      status.textContent = 'Please add your name, email, and a brief before sending.';
+      return;
+    }
+
+    if (WEB3FORMS_ACCESS_KEY === 'ACCESS_KEY_PLACEHOLDER') {
+      status.className = 'form-status err';
+      status.textContent = 'Form not yet connected — add your Web3Forms access key to start receiving inquiries.';
+      return;
+    }
+
+    var payload = {
+      access_key: WEB3FORMS_ACCESS_KEY,
+      subject: 'New inquiry' + (name ? ' from ' + name : '') + (brand ? ' (' + brand + ')' : ''),
+      from_name: 'TV Productions Website',
+      name: name,
+      email: email,
+      brand_or_company: brand,
+      project_type: type,
+      estimated_budget: budget,
+      brief: brief
+    };
+
+    var original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    status.className = 'form-status pending';
+    status.textContent = 'Transmitting…';
+
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.success) {
+          form.reset();
+          status.className = 'form-status ok';
+          status.textContent = 'Signal received. We\'ll be in touch shortly.';
+        } else {
+          status.className = 'form-status err';
+          status.textContent = 'Something went wrong. Please email tannervonnahme2@gmail.com directly.';
+        }
+      })
+      .catch(function () {
+        status.className = 'form-status err';
+        status.textContent = 'Network error. Please email tannervonnahme2@gmail.com directly.';
+      })
+      .finally(function () {
+        btn.disabled = false;
+        btn.textContent = original;
+      });
+  }
+</script>
 
 </body>
 </html>

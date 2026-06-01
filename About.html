@@ -209,6 +209,86 @@
       background-repeat: no-repeat;
       background-color: #0a0a0a;
     }
+    /* ── hero split + hero TV (matches Services page) ── */
+    .hero-split {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 56px;
+    }
+    .hero-split .hero-copy { flex: 1 1 0; min-width: 0; }
+    .hero-split .hero-copy h1 { font-size: clamp(64px, 9.5vw, 148px); }
+    .hero-split .hero-copy .lede { max-width: 700px; text-wrap: pretty; }
+    .hero-tv {
+      flex: 0 0 530px;
+      max-width: 530px;
+      user-select: none;
+    }
+    @media (max-width: 940px) {
+      .hero-split { flex-direction: column; align-items: stretch; gap: 36px; }
+      .hero-tv { flex-basis: auto; max-width: 580px; width: 100%; }
+    }
+    .hero-tv-bezel {
+      position: relative;
+      padding: 18px;
+      border-radius: 18px;
+      background: radial-gradient(ellipse 130% 100% at 50% 0%, #1c1c1a 0%, #0e0e0d 62%);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06),
+        inset 0 2px 0 rgba(255,255,255,0.05),
+        inset 0 0 0 1px rgba(0,0,0,0.7),
+        0 30px 60px rgba(0,0,0,0.6);
+    }
+    .hero-tv-screen {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #050505;
+      box-shadow:
+        inset 0 0 60px rgba(0,0,0,0.95),
+        inset 0 0 0 1px rgba(255,255,255,0.05);
+    }
+    .hero-tv-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .hero-tv-glass {
+      position: absolute; inset: 0; pointer-events: none; z-index: 3;
+      background: linear-gradient(155deg,
+        rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 18%,
+        transparent 38%, transparent 62%, rgba(255,255,255,0.02) 92%);
+    }
+    .hero-tv-scan {
+      position: absolute; inset: 0; pointer-events: none; z-index: 2;
+      background-image: repeating-linear-gradient(0deg,
+        rgba(0,0,0,0.16) 0px, rgba(0,0,0,0.16) 1px, transparent 1px, transparent 3px);
+      mix-blend-mode: multiply;
+    }
+    .hero-tv-chin {
+      display: flex; align-items: center; gap: 14px;
+      margin-top: 12px; padding: 12px 18px; border-radius: 12px;
+      background: linear-gradient(180deg, #161615 0%, #0c0c0b 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 20px rgba(0,0,0,0.4);
+    }
+    .hero-tv-btns { display: flex; gap: 7px; }
+    .hero-tv-btns .b {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #3a3a37, #141413);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.6);
+    }
+    .hero-tv-btns .b.pwr {
+      background: radial-gradient(circle at 35% 30%, #ff6657, var(--signal));
+      box-shadow: 0 0 8px rgba(255,45,32,0.5);
+    }
+    .hero-tv-led {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #3ddc6e; box-shadow: 0 0 8px rgba(61,220,110,0.7);
+    }
     .page-hero .lede { max-width: 760px; }
   </style>
 </head>
@@ -228,12 +308,31 @@
   <div class="channel-pill"><span class="rec"></span>CH 03</div>
 </header>
 
-<section class="page-hero">
-  <div class="crumbs">
-    <span>TV</span><span class="sep">/</span><span class="here">About</span>
+<section class="page-hero hero-split">
+  <div class="hero-copy">
+    <div class="crumbs">
+      <span>TV</span><span class="sep">/</span><span class="here">About</span>
+    </div>
+    <h1>Who we<br/>are.</h1>
+    <p class="lede">TV Productions is a social-first video content agency founded by <span style="white-space:nowrap;">Tanner Vonnahme</span>.<br/>Based in Los Angeles, California, we are here to serve your brand by making "must see TV".</p>
   </div>
-  <h1>Who we<br/>are.</h1>
-  <p class="lede">TV Productions is a social-first video content agency founded by <span style="white-space:nowrap;">Tanner Vonnahme</span>.<br/>Based in Los Angeles, California, we are here to serve your brand by making "must see TV".</p>
+
+  <div class="hero-tv" aria-hidden="true">
+    <div class="hero-tv-bezel">
+      <div class="hero-tv-screen">
+        <video class="hero-tv-video" autoplay muted loop playsinline preload="auto"
+               src="uploads/ABOUT Page Edit.mp4"></video>
+        <div class="hero-tv-glass"></div>
+        <div class="hero-tv-scan"></div>
+      </div>
+    </div>
+    <div class="hero-tv-chin">
+      <div class="hero-tv-btns">
+        <span class="b pwr"></span><span class="b"></span><span class="b"></span><span class="b"></span>
+      </div>
+      <span class="hero-tv-led"></span>
+    </div>
+  </div>
 </section>
 
 <main class="content">
